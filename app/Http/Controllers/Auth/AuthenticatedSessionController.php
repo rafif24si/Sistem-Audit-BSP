@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\ActivityLogger;
+use App\Services\CaptchaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,9 +20,12 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): Response
     {
+        $captchaQuestion = CaptchaService::generate();
+
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+            'captchaQuestion' => $captchaQuestion,
         ]);
     }
 
@@ -33,6 +38,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = $request->user();
+        ActivityLogger::log('LOGIN', "Pengguna {$user->name} ({$user->role}) berhasil masuk ke sistem.");
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
@@ -41,12 +49,18 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $user = $request->user();
+
+        if ($user) {
+            ActivityLogger::log('LOGOUT', "Pengguna {$user->name} keluar dari sistem.", $user->id);
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('login');
     }
 }
