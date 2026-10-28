@@ -42,3 +42,10 @@ Kerjakan daftar di bawah ini secara berurutan (1 kotak per siklus Plan -> Execut
 - [x] Perbarui form modal Jadwal Rapat secara kondisional: jika user memilih `Offline`, sembunyikan dropdown platform dan arahkan user langsung mengetik nama tempat/ruangan rapat; jika user memilih `Online`, tampilkan dropdown Platform (`Zoom`, `Google Meet`, `Microsoft Teams`) dan arahkan input lokasi untuk mengisi link/tautan meeting.
 - [x] Pasang `barryvdh/laravel-dompdf` (jika belum ada) dan tambahkan method `exportPdf` beserta rutenya (`GET /meetings/{meeting}/pdf`) di `MeetingController` tanpa mengubah fitur simpan E-Notulen yang sudah berjalan di sistem.
 - [x] Buat template cetak `resources/views/pdf/notulen.blade.php` dengan Kop Surat Resmi PT Bumi Siak Pusako (Logo resmi PT BSP, Nama Badan Usaha `PT BUMI SIAK PUSAKO`, status BUMD Pengelola WK CPP, alamat Kantor Pusat Gedung Surya Dumai Pekanbaru, Kantor Jakarta, Camp Zamrud, Telepon `(62-761) 855-764`, Email `helpdesk@bsp.co.id`, Website `ptbsp.id / bsp.co.id`), tabel detail rapat, daftar hadir/undangan, pembahasan notulen, serta hasil keputusan rapat, lalu tambahkan tombol **"Unduh PDF"** di halaman `Pages/Meetings/Show.jsx`.
+
+## Fase 9: Pencatatan Indikator Kinerja Kunci (KPI) Fleksibel
+- [x] Buat migration baru untuk tabel `kpis` dan Model Eloquent `Kpi` dengan trait `SoftDeletes`.
+- [x] Buat `KpiRequest` dan `KpiController` untuk mengelola CRUD pencatatan KPI fleksibel (khusus role `manager_spi` & `super_admin`) beserta pencatatan aktivitas ke `activity_logs`.
+- [x] Buat komponen modal kelola KPI (`KpiModal.jsx`) dan section kartu capaian KPI interaktif (`KpiSection.jsx`) di Dashboard utama.
+- [x] Perbarui `DashboardController` untuk memuat data indikator KPI fleksibel beserta ringkasan metrik realisasinya.
+- [x] Tambahkan seeder data awal KPI SPI realistis di `DemoDataSeeder.php`, jalankan migrasi, dan pastikan `npm run build` sukses.

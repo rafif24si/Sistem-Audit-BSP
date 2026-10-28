@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import KpiCard from '@/Components/Dashboard/KpiCard';
+import KpiSection from '@/Components/Dashboard/KpiSection';
 import MeetingPreviewCard from '@/Components/Dashboard/MeetingPreviewCard';
 import PendingFollowupCard from '@/Components/Dashboard/PendingFollowupCard';
 import { Head, Link, usePage } from '@inertiajs/react';
@@ -17,8 +18,10 @@ export default function Dashboard({
     upcomingMeetings = [],
     pendingFollowups = [],
     recentActivities = [],
+    kpis = [],
 }) {
     const user = usePage().props.auth.user;
+    const canManageKpi = ['super_admin', 'manager_spi'].includes(user?.role);
 
     const kpiCards = [
         {
@@ -112,6 +115,9 @@ export default function Dashboard({
                         <KpiCard key={card.title} {...card} />
                     ))}
                 </div>
+
+                {/* Flexible KPI Progress Section */}
+                <KpiSection kpis={kpis} canManage={canManageKpi} />
 
                 {/* Two-Column Section: Upcoming Meetings & Pending Follow-Ups */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

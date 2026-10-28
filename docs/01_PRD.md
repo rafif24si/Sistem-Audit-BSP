@@ -70,6 +70,11 @@
       - Telepon & Faksimili: (62-761) 855-764 | Email Resmi: helpdesk@bsp.co.id | Situs Web: ptbsp.id / bsp.co.id
 - **Keamanan Rapat:** Secara bawaan (default), notulen rapat memiliki sifat kerahasiaan **`Terbatas`** (hanya dapat diakses oleh personel SPI dan peserta rapat terkait; Auditee hanya melihat rapat yang mengundangnya secara *read-only*).
 
+### Modul 4: Pencatatan Indikator Kinerja Kunci (KPI) Fleksibel
+- **Pencatatan Target & Realisasi KPI SPI:** Memungkinkan Manager SPI dan Super Admin untuk mencatat, memperbarui, dan mengevaluasi target indikator kinerja (seperti persentase penyelesaian PKPT tahunan, tingkat tindak lanjut rekomendasi temuan audit/TLHP, kecepatan penerbitan LHA, kepatuhan dokumen terkendali SOP).
+- **Fleksibilitas Data:** Data nama indikator, kategori KPI, target capaian, realisasi capaian, satuan ukur (%, Hari, Dokumen, Kegiatan), periode (tahun/triwulan), status (Tercapai, Dalam Proses, Perlu Perhatian, Belum Tercapai), serta catatan evaluasi dapat disesuaikan dan diedit kapan saja secara fleksibel.
+- **Visualisasi & Hak Akses:** Ditampilkan secara interaktif di Dashboard utama (dengan kartu progres persentase capaian) dan modul terintegrasi; Manager SPI & Super Admin dapat menambah/mengubah data KPI, sedangkan Auditor & Auditee dapat melihat data secara *read-only*.
+
 ## 4. Alur Kerja Sistem (End-to-End Workflow)
 1. **Input & Approval:** Staf/Auditor menginput konsep surat atau Manager menjadwalkan rapat (Offline/Online) -> Manager SPI menyetujui surat keluar -> Sistem mengunci nomor otomatis dan mengatur hak akses berdasarkan tingkat kerahasiaan serta departemen tujuan.
 2. **Proses & Disposisi:** Surat masuk atau hasil keputusan rapat diteruskan menjadi instruksi (Disposisi) oleh Manager kepada Auditor dengan tenggat waktu.

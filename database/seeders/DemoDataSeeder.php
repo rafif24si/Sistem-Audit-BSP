@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\ActivityLog;
 use App\Models\Department;
 use App\Models\Disposition;
+use App\Models\Kpi;
 use App\Models\Letter;
 use App\Models\MasterDocument;
 use App\Models\Meeting;
@@ -335,6 +336,69 @@ class DemoDataSeeder extends Seeder
 
         foreach ($activities as $act) {
             ActivityLog::create($act);
+        }
+
+        // 6. Indikator Kinerja Kunci (KPI) Fleksibel SPI PT BSP
+        $kpiItems = [
+            [
+                'title' => 'Penyelesaian Program Kerja Pengawasan Tahunan (PKPT)',
+                'category' => 'Operasional Audit',
+                'target_value' => 100.0,
+                'realization_value' => 85.0,
+                'unit' => '%',
+                'period' => 'Tahun 2026',
+                'status' => 'Dalam Proses',
+                'notes' => 'Dari 20 penugasan audit reguler tahun 2026, sebanyak 17 penugasan telah selesai dilaksanakan.',
+                'order_index' => 1,
+                'created_by' => $manager->id,
+                'updated_by' => $manager->id,
+            ],
+            [
+                'title' => 'Tingkat Tindak Lanjut Rekomendasi Temuan Audit (TLHP)',
+                'category' => 'Kepatuhan & Tata Kelola',
+                'target_value' => 90.0,
+                'realization_value' => 82.5,
+                'unit' => '%',
+                'period' => 'Tahun 2026',
+                'status' => 'Dalam Proses',
+                'notes' => 'Departemen Operasi dan QHSE telah menindaklanjuti 33 dari total 40 rekomendasi temuan auditor.',
+                'order_index' => 2,
+                'created_by' => $manager->id,
+                'updated_by' => $manager->id,
+            ],
+            [
+                'title' => 'Kecepatan Penerbitan Laporan Hasil Audit (LHA)',
+                'category' => 'Administrasi & Pelaporan',
+                'target_value' => 14.0,
+                'realization_value' => 12.0,
+                'unit' => 'Hari',
+                'period' => 'Tahun 2026',
+                'status' => 'Tercapai',
+                'notes' => 'Rata-rata waktu penyelesaian draf LHA final setelah exit meeting tercapai dalam 12 hari kalender.',
+                'order_index' => 3,
+                'created_by' => $manager->id,
+                'updated_by' => $manager->id,
+            ],
+            [
+                'title' => 'Kepatuhan Review Dokumen SOP & Dokumen Terkendali',
+                'category' => 'Kepatuhan & Tata Kelola',
+                'target_value' => 100.0,
+                'realization_value' => 100.0,
+                'unit' => '%',
+                'period' => 'Tahun 2026',
+                'status' => 'Tercapai',
+                'notes' => 'Seluruh pedoman SOP dan petunjuk teknis internal SPI telah diperbarui ke versi mutakhir 2026.',
+                'order_index' => 4,
+                'created_by' => $manager->id,
+                'updated_by' => $manager->id,
+            ],
+        ];
+
+        foreach ($kpiItems as $kpi) {
+            Kpi::updateOrCreate(
+                ['title' => $kpi['title'], 'period' => $kpi['period']],
+                $kpi
+            );
         }
     }
 }

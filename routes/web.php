@@ -52,6 +52,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/meetings/{meeting}/download', [\App\Http\Controllers\MeetingController::class, 'downloadAttachment'])->name('meetings.download');
     Route::get('/meetings/{meeting}/pdf', [\App\Http\Controllers\MeetingController::class, 'exportPdf'])->name('meetings.pdf');
     
+    // Pencatatan Indikator Kinerja (KPI) Fleksibel
+    Route::post('/kpis', [\App\Http\Controllers\KpiController::class, 'store'])->name('kpis.store');
+    Route::put('/kpis/{kpi}', [\App\Http\Controllers\KpiController::class, 'update'])->name('kpis.update');
+    Route::delete('/kpis/{kpi}', [\App\Http\Controllers\KpiController::class, 'destroy'])->name('kpis.destroy');
+    
     // Khusus Super Admin (Kelola Pengguna & Audit Trail)
     Route::middleware('role:super_admin')->group(function () {
         Route::resource('users', \App\Http\Controllers\UserController::class)->except(['create', 'show', 'edit']);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
+use App\Models\Kpi;
 use App\Models\Letter;
 use App\Models\MasterDocument;
 use App\Models\Meeting;
@@ -46,6 +47,12 @@ class DashboardController extends Controller
             ->limit(6)
             ->get();
 
+        // 5. Flexible Key Performance Indicators (KPIs)
+        $kpis = Kpi::with('creator:id,name')
+            ->orderBy('order_index')
+            ->latest('updated_at')
+            ->get();
+
         return Inertia::render('Dashboard', [
             'stats' => [
                 'controlled_documents' => $totalControlledDocuments,
@@ -56,6 +63,7 @@ class DashboardController extends Controller
             'upcomingMeetings' => $upcomingMeetings,
             'pendingFollowups' => $pendingFollowups,
             'recentActivities' => $recentActivities,
+            'kpis' => $kpis,
         ]);
     }
 }

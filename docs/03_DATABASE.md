@@ -96,3 +96,18 @@
 - `description`: text
 - `ip_address`: varchar(45), nullable
 - `created_at`: timestamp
+
+## 8. Tabel `kpis` (Pencatatan Indikator Kinerja Fleksibel)
+- `id`: bigint unsigned, PK
+- `title`: varchar(255) (Nama indikator kinerja, misal: "Penyelesaian Program Kerja Pengawasan Tahunan (PKPT)")
+- `category`: enum('Operasional Audit', 'Kepatuhan & Tata Kelola', 'Administrasi & Pelaporan', 'Pengembangan SDM'), default: 'Operasional Audit'
+- `target_value`: decimal(8,2) (Nilai target kinerja)
+- `realization_value`: decimal(8,2) (Nilai realisasi capaian saat ini)
+- `unit`: varchar(50), default: '%' (Satuan ukur: '%', 'Hari', 'Dokumen', 'Kegiatan')
+- `period`: varchar(50) (Periode capaian, misal: 'Tahun 2026', 'Triwulan III 2026')
+- `status`: enum('Tercapai', 'Dalam Proses', 'Perlu Perhatian', 'Belum Tercapai'), default: 'Dalam Proses'
+- `notes`: text, nullable (Catatan evaluasi / kendala pencapaian)
+- `order_index`: int, default: 0
+- `created_by`: foreignId (`users.id`), nullable
+- `updated_by`: foreignId (`users.id`), nullable
+- `timestamps` & `softDeletes`
