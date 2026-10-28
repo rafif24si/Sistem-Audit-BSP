@@ -9,14 +9,15 @@ use Illuminate\Http\JsonResponse;
 class CaptchaController extends Controller
 {
     /**
-     * Refresh and return a new captcha question.
+     * Refresh and return a new captcha image and key.
      */
     public function refresh(): JsonResponse
     {
-        $question = CaptchaService::generate();
+        $captcha = CaptchaService::generateApi();
 
         return response()->json([
-            'question' => $question,
+            'img' => $captcha['img'],
+            'key' => $captcha['key'],
         ]);
     }
 }

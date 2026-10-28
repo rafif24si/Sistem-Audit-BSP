@@ -1,7 +1,7 @@
 import { Shield } from 'lucide-react';
 import Toast from '@/Components/Toast';
 
-export default function GuestLayout({ children, title, subtitle }) {
+export default function GuestLayout({ children, title, subtitle, logo = '/images/logo.png' }) {
     return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100/80 px-4 py-8 sm:px-6 lg:px-8">
             <Toast />
@@ -9,13 +9,23 @@ export default function GuestLayout({ children, title, subtitle }) {
             <div className="w-full max-w-md">
                 {/* Brand Header */}
                 <div className="mb-8 text-center">
-                    <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-[#194f2b] text-white shadow-lg ring-4 ring-emerald-100">
-                        <Shield className="h-9 w-9 text-emerald-300" />
-                    </div>
+                    {logo ? (
+                        <div className="inline-flex items-center justify-center p-1 rounded-full bg-white shadow-md border-2 border-emerald-600/30 ring-4 ring-emerald-100/80">
+                            <img
+                                src={logo}
+                                alt="Logo PT Bumi Siak Pusako"
+                                className="h-20 w-20 rounded-full object-cover"
+                            />
+                        </div>
+                    ) : (
+                        <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-[#194f2b] text-white shadow-lg ring-4 ring-emerald-100">
+                            <Shield className="h-9 w-9 text-emerald-300" />
+                        </div>
+                    )}
                     <h1 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">
                         {title || 'Sistem Integrasi SPI'}
                     </h1>
-                    <p className="mt-1 text-sm font-medium text-emerald-800">
+                    <p className="mt-1 text-sm font-semibold tracking-wide text-emerald-800">
                         PT BUMI SIAK PUSAKO
                     </p>
                     {subtitle && (

@@ -5,30 +5,40 @@ namespace App\Services;
 class CaptchaService
 {
     /**
-     * Generate a new math captcha challenge and store the answer in session.
+     * Generate a new image text captcha via mews/captcha API.
+     *
+     * @param string $config
+     * @return array{img: string, key: string, sensitive: bool}
      */
-    public static function generate(): string
+    public static function generateApi(string $config = 'default'): array
     {
-        $num1 = rand(1, 15);
-        $num2 = rand(1, 10);
-        $answer = $num1 + $num2;
+        $captcha = app('captcha')->create($config, true);
 
-        session(['captcha_answer' => $answer]);
-
-        return "{$num1} + {$num2} = ?";
+        return [
+            'img' => $captcha['img'],
+            'key' => $captcha['key'],
+            'sensitive' => $captcha['sensitive'] ?? false,
+        ];
     }
 
     /**
-     * Validate the given answer against session.
+     * Validate the given captcha answer against the key or session.
+     *
+     * @param mixed $value
+     * @param string|null $key
+     * @param string $config
+     * @return bool
      */
-    public static function validate(mixed $value): bool
+    public static function validate(mixed $value, ?string $key = null, string $config = 'default'): bool
     {
-        $expected = session('captcha_answer');
-
-        if ($expected === null) {
+        if (empty($value)) {
             return false;
         }
 
-        return (int) $value === (int) $expected;
+        if (! empty($key)) {
+            return app('captcha')->check_api((string) $value, $key, $config);
+        }
+
+        return app('captcha')->check((string) $value);
     }
 }

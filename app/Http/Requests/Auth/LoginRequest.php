@@ -31,20 +31,6 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
-            'captcha' => ['required', 'numeric'],
-        ];
-    }
-
-    /**
-     * Get custom messages for validator errors.
-     *
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'captcha.required' => 'Verifikasi keamanan (Captcha) wajib diisi.',
-            'captcha.numeric' => 'Jawaban Captcha harus berupa angka.',
         ];
     }
 
@@ -56,12 +42,6 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
-
-        if (! CaptchaService::validate($this->input('captcha'))) {
-            throw ValidationException::withMessages([
-                'captcha' => 'Jawaban Captcha tidak tepat atau telah kadaluarsa.',
-            ]);
-        }
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());

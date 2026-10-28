@@ -7,7 +7,7 @@
 - **Solusi:** Membangun platform terpusat berbasis web untuk mengintegrasikan Kontrol Dokumen (Persuratan, Disposisi, Arsip SOP) dan Manajemen Rapat (Jadwal & E-Notulen) dalam satu ekosistem yang aman dan terlacak.
 
 ## 2. Peran Pengguna (User Roles & Hak Akses)
-1. **Super Admin (Pengelola Dokumen SPI / IT):** Memiliki akses penuh ke seluruh modul, mengelola data pengguna/departemen, memverifikasi penomoran surat, serta mengatur dokumen master (SOP/Pedoman).
+1. **Super Admin (Pengelola Dokumen SPI / IT):** Memiliki akses penuh ke seluruh modul, memverifikasi penomoran surat, mengatur dokumen master, dan **satu-satunya peran yang berhak membuat/mendaftarkan akun pengguna baru**.
 2. **Manager SPI (Kepala Audit):** Melihat statistik dashboard, membuat jadwal rapat, memberikan instruksi disposisi pada surat masuk, dan memberikan persetujuan (approval) pada surat keluar atau laporan.
 3. **Auditor / Staf SPI:** Menginput konsep surat keluar, mencatat notulen hasil rapat, menindaklanjuti instruksi disposisi dari Manager, dan mengakses dokumen terkendali.
 4. **Auditee (PIC Departemen Terkait):** Hanya dapat melihat surat/undangan yang ditujukan ke departemennya, melihat notulen rapat terkait (entry/exit meeting), dan mengunggah dokumen tindak lanjut (follow-up).
@@ -15,7 +15,11 @@
 ## 3. Spesifikasi Modul & Fitur Utama (MVP)
 
 ### Modul 1: Autentikasi & Dashboard Terintegrasi
-- **Login & Register:** Dilengkapi fitur keamanan validasi **Captcha** saat login.
+- **Login & Akun:** Hanya tersedia form Login (Email & Password). **TIDAK ADA fitur Register** karena sistem bersifat internal. Fitur keamanan **Captcha dimatikan sementara** selama masa *development*. Akun default untuk keperluan *testing* akan dibuat menggunakan Seeder dengan kredensial:
+  - Super Admin: `superadmin@bsp.com` (pass: password)
+  - Manager SPI: `manager@bsp.com` (pass: password)
+  - Auditor: `auditor@bsp.com` (pass: password)
+  - Auditee QHSE: `auditee.qhse@bsp.com` (pass: password)
 - **Dashboard Utama:** Menampilkan kartu ringkasan statistik (Total Dokumen Terkendali, Surat Masuk Belum Didisposisi, Surat Eksternal Butuh Follow-Up, dan Jadwal Rapat Terdekat) serta tabel aktivitas terbaru yang menggabungkan aktivitas dokumen dan rapat.
 
 ### Modul 2: Dokumen Kontrol & Persuratan

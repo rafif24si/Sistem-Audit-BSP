@@ -1,47 +1,23 @@
-import { useState } from 'react';
 import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Lock, Mail, RotateCw, ShieldCheck } from 'lucide-react';
+import { Lock, Mail } from 'lucide-react';
 
-export default function Login({ status, canResetPassword, captchaQuestion: initialCaptcha }) {
-    const [captchaText, setCaptchaText] = useState(initialCaptcha || '5 + 3 = ?');
-    const [isRefreshingCaptcha, setIsRefreshingCaptcha] = useState(false);
-
+export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
-        captcha: '',
         remember: false,
     });
-
-    const refreshCaptcha = async () => {
-        setIsRefreshingCaptcha(true);
-        try {
-            const res = await fetch(route('captcha.refresh'));
-            const result = await res.json();
-            if (result.question) {
-                setCaptchaText(result.question);
-                setData('captcha', '');
-            }
-        } catch (err) {
-            console.error('Failed to refresh captcha', err);
-        } finally {
-            setIsRefreshingCaptcha(false);
-        }
-    };
 
     const submit = (e) => {
         e.preventDefault();
 
         post(route('login'), {
-            onFinish: () => {
-                reset('password', 'captcha');
-                refreshCaptcha();
-            },
+            onFinish: () => reset('password'),
         });
     };
 
@@ -49,6 +25,7 @@ export default function Login({ status, canResetPassword, captchaQuestion: initi
         <GuestLayout
             title="Masuk ke Akun Anda"
             subtitle="Gunakan kredensial resmi internal SPI PT BSP"
+            logo="/images/logo.png"
         >
             <Head title="Masuk - Sistem Integrasi SPI" />
 
@@ -71,7 +48,7 @@ export default function Login({ status, canResetPassword, captchaQuestion: initi
                             type="email"
                             name="email"
                             value={data.email}
-                            placeholder="nama@bsp.co.id"
+                            placeholder="nama@bsp.com"
                             className="block w-full pl-9"
                             autoComplete="username"
                             isFocused={true}
@@ -100,44 +77,6 @@ export default function Login({ status, canResetPassword, captchaQuestion: initi
                         />
                     </div>
                     <InputError message={errors.password} className="mt-1.5" />
-                </div>
-
-                {/* Captcha Field */}
-                <div className="rounded-xl border border-gray-200 bg-slate-50/80 p-3.5 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2 text-xs font-semibold text-gray-700">
-                            <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                            <span>Verifikasi Keamanan (Captcha)</span>
-                        </div>
-                        <button
-                            type="button"
-                            onClick={refreshCaptcha}
-                            disabled={isRefreshingCaptcha}
-                            className="inline-flex items-center space-x-1 text-xs text-emerald-700 hover:text-emerald-900 focus:outline-none"
-                            title="Segarkan Captcha"
-                        >
-                            <RotateCw className={`h-3.5 w-3.5 ${isRefreshingCaptcha ? 'animate-spin' : ''}`} />
-                            <span>Acak</span>
-                        </button>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                        <div className="flex h-10 select-none items-center justify-center rounded-lg bg-emerald-800 px-4 text-base font-bold tracking-wider text-emerald-100 shadow-inner">
-                            {captchaText}
-                        </div>
-                        <div className="flex-1">
-                            <TextInput
-                                id="captcha"
-                                type="text"
-                                name="captcha"
-                                value={data.captcha}
-                                placeholder="Jawaban angka"
-                                className="block w-full"
-                                onChange={(e) => setData('captcha', e.target.value)}
-                            />
-                        </div>
-                    </div>
-                    <InputError message={errors.captcha} className="mt-1" />
                 </div>
 
                 {/* Remember & Forgot Password */}
@@ -170,7 +109,7 @@ export default function Login({ status, canResetPassword, captchaQuestion: initi
                         disabled={processing}
                         className="w-full flex items-center justify-center rounded-lg bg-[#194f2b] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#123b20] focus:outline-none focus:ring-2 focus:ring-[#194f2b] focus:ring-offset-2 disabled:opacity-75 disabled:cursor-not-allowed"
                     >
-                        {processing ? 'Memproses...' : 'Masuk ke Sistem'}
+                        {processing ? 'Memproses...' : 'Masuk'}
                     </button>
                 </div>
             </form>

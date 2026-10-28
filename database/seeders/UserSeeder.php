@@ -18,30 +18,34 @@ class UserSeeder extends Seeder
         $qhseDept = Department::where('code', 'QHSE')->first();
 
         $users = [
+            // 1. Super Admin
             [
-                'name' => 'Super Admin SPI',
-                'email' => 'admin@bsp.co.id',
+                'name' => 'Super Administrator SPI',
+                'email' => 'superadmin@bsp.com',
                 'password' => Hash::make('password'),
                 'role' => 'super_admin',
                 'department_id' => $spiDept?->id,
             ],
+            // 2. Manager SPI (Pimpinan Audit)
             [
-                'name' => 'Manager SPI',
-                'email' => 'manager.spi@bsp.co.id',
+                'name' => 'Bambang Irawan (Kepala SPI)',
+                'email' => 'manager@bsp.com',
                 'password' => Hash::make('password'),
                 'role' => 'manager_spi',
                 'department_id' => $spiDept?->id,
             ],
+            // 3. Auditor (Staf Auditor SPI)
             [
-                'name' => 'Auditor SPI',
-                'email' => 'auditor.spi@bsp.co.id',
+                'name' => 'Rendra Pratama (Auditor SPI)',
+                'email' => 'auditor@bsp.com',
                 'password' => Hash::make('password'),
                 'role' => 'auditor',
                 'department_id' => $spiDept?->id,
             ],
+            // 4. Auditee QHSE
             [
-                'name' => 'PIC QHSE (Auditee)',
-                'email' => 'auditee.qhse@bsp.co.id',
+                'name' => 'Ahmad Fauzi (PIC QHSE)',
+                'email' => 'auditee.qhse@bsp.com',
                 'password' => Hash::make('password'),
                 'role' => 'auditee',
                 'department_id' => $qhseDept?->id,
@@ -49,7 +53,7 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($users as $userData) {
-            User::firstOrCreate(
+            User::updateOrCreate(
                 ['email' => $userData['email']],
                 $userData
             );

@@ -7,7 +7,6 @@ import {
     CheckSquare,
     Calendar,
     History,
-    Shield,
     X,
 } from 'lucide-react';
 
@@ -82,14 +81,18 @@ export default function Sidebar({ isOpen, onClose }) {
                 {/* Branding Header */}
                 <div className="flex h-16 items-center justify-between border-b border-white/10 px-6">
                     <div className="flex items-center space-x-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-400/30">
-                            <Shield className="h-6 w-6" />
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white p-0.5 shadow-md ring-2 ring-emerald-400/30">
+                            <img
+                                src="/images/logo.png"
+                                alt="Logo PT Bumi Siak Pusako"
+                                className="h-full w-full rounded-full object-cover"
+                            />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-base font-bold tracking-tight text-white">
+                            <span className="text-base font-bold tracking-tight text-white leading-tight">
                                 SPI PT BSP
                             </span>
-                            <span className="text-xs text-emerald-200/80">
+                            <span className="text-[11px] text-emerald-200/80 leading-tight">
                                 Sistem Integrasi Audit
                             </span>
                         </div>
@@ -136,13 +139,20 @@ export default function Sidebar({ isOpen, onClose }) {
 
                 {/* Sidebar footer badge */}
                 <div className="border-t border-white/10 p-4">
-                    <div className="rounded-lg bg-emerald-950/40 p-3 ring-1 ring-white/5">
-                        <p className="text-xs font-semibold text-emerald-200">
-                            PT Bumi Siak Pusako
-                        </p>
-                        <p className="mt-0.5 text-[11px] text-emerald-300/70">
-                            Satuan Pengawasan Intern
-                        </p>
+                    <div className="flex items-center space-x-3 rounded-lg bg-emerald-950/40 p-3 ring-1 ring-white/5">
+                        <img
+                            src="/images/logo.png"
+                            alt="Logo PT BSP"
+                            className="h-8 w-8 flex-shrink-0 rounded-full object-cover ring-1 ring-emerald-400/30"
+                        />
+                        <div className="min-w-0 flex-1">
+                            <p className="truncate text-xs font-semibold text-emerald-200">
+                                PT Bumi Siak Pusako
+                            </p>
+                            <p className="truncate text-[11px] text-emerald-300/70">
+                                Satuan Pengawasan Intern
+                            </p>
+                        </div>
                     </div>
                 </div>
             </aside>
