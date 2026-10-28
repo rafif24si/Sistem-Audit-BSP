@@ -90,6 +90,10 @@ class MasterDocumentController extends Controller
      */
     public function store(MasterDocumentRequest $request): RedirectResponse
     {
+        if (Auth::user()?->role !== 'super_admin') {
+            abort(403, 'Akses Ditolak: Hanya Super Admin yang berhak menambahkan dokumen master.');
+        }
+
         $data = $request->validated();
         $file = $request->file('file');
 
@@ -139,6 +143,10 @@ class MasterDocumentController extends Controller
      */
     public function update(MasterDocumentRequest $request, MasterDocument $document): RedirectResponse
     {
+        if (Auth::user()?->role !== 'super_admin') {
+            abort(403, 'Akses Ditolak: Hanya Super Admin yang berhak memperbarui dokumen master.');
+        }
+
         $data = $request->validated();
 
         if ($request->hasFile('file')) {
@@ -169,6 +177,10 @@ class MasterDocumentController extends Controller
      */
     public function destroy(MasterDocument $document): RedirectResponse
     {
+        if (Auth::user()?->role !== 'super_admin') {
+            abort(403, 'Akses Ditolak: Hanya Super Admin yang berhak menghapus dokumen master.');
+        }
+
         $docNumber = $document->document_number;
         $document->delete();
 

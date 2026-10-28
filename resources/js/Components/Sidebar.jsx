@@ -7,6 +7,7 @@ import {
     CheckSquare,
     Calendar,
     History,
+    Users,
     X,
 } from 'lucide-react';
 
@@ -54,12 +55,20 @@ export default function Sidebar({ isOpen, onClose }) {
     ];
 
     if (user?.role === 'super_admin') {
-        navItems.push({
-            name: 'Log Aktivitas (Audit)',
-            href: route('activity-logs.index'),
-            icon: History,
-            active: url.startsWith('/activity-logs'),
-        });
+        navItems.push(
+            {
+                name: 'Kelola Pengguna',
+                href: route('users.index'),
+                icon: Users,
+                active: url.startsWith('/users'),
+            },
+            {
+                name: 'Log Aktivitas (Audit)',
+                href: route('activity-logs.index'),
+                icon: History,
+                active: url.startsWith('/activity-logs'),
+            }
+        );
     }
 
     return (

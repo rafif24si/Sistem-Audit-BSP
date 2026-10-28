@@ -29,3 +29,10 @@ Kerjakan daftar di bawah ini secara berurutan (1 kotak per siklus Plan -> Execut
 ## Fase 6: Dashboard Terintegrasi & Finalisasi
 - [x] Buat `DashboardController` dan perbarui `Pages/Dashboard.jsx` untuk menampilkan grafik/kartu statistik terintegrasi (Ringkasan Surat, Dokumen Terkendali, Status Follow-Up Eksternal, dan Jadwal Rapat Terdekat).
 - [x] Uji coba seluruh fitur filter, pencarian, proteksi unduhan file rahasia, dan jalankan `npm run build` untuk memastikan tidak ada error kompilasi.
+
+## Fase 7: Penguatan Hak Akses (RBAC), Kelola Pengguna & Approval Surat
+- [x] Buat Modul Kelola Pengguna (`/users`) khusus Super Admin (`UserController`, `UserRequest`, `Pages/Users/Index.jsx`, `UserModal.jsx`) beserta menu navigasi di Sidebar.
+- [x] Buat migration penambahan kolom `recipient_department_id`, `approval_status`, `approved_by`, dan `approval_notes` pada tabel `letters`.
+- [x] Implementasikan fitur Approval Surat Keluar (`LetterApprovalRequest`, `LetterController@approve`, `ApprovalModal.jsx`) untuk Manager SPI & Super Admin, serta pilihan Departemen Tujuan pada `LetterModal.jsx`.
+- [x] Terapkan isolasi filter surat khusus departemen Auditee, sembunyikan seluruh tombol CRUD (Tambah/Ubah/Hapus) pada Dokumen Master, Surat, dan Rapat bagi role yang tidak berhak, serta proteksi seluruh method di Backend Controller menggunakan `abort(403)` sesuai matriks PRD.
+- [x] Jalankan migrasi database (`php artisan migrate:fresh --seed`), pastikan seeder berjalan baik, dan verifikasi kompilasi frontend (`npm run build`).

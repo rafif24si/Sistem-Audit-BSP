@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import StatusBadge from '@/Components/StatusBadge';
 import Pagination from '@/Components/Pagination';
 import MeetingModal from '@/Components/Meetings/MeetingModal';
 import { Plus, Search, Calendar, MapPin, Users, FileText, Download, Edit, Trash2 } from 'lucide-react';
 
 export default function Index({ meetings, allUsers, filters }) {
+    const { user } = usePage().props.auth;
+    const canManage = ['super_admin', 'manager_spi'].includes(user?.role);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMeeting, setSelectedMeeting] = useState(null);
     const [search, setSearch] = useState(filters.search || '');
@@ -39,13 +41,15 @@ export default function Index({ meetings, allUsers, filters }) {
                         <h2 className="text-xl font-bold text-gray-900 leading-tight">Jadwal Rapat & E-Notulen</h2>
                         <p className="text-xs text-gray-500 mt-0.5">Pengelolaan agenda rapat audit (Entry/Exit Meeting) dan pencatatan notulen digital</p>
                     </div>
-                    <button
-                        onClick={() => { setSelectedMeeting(null); setIsModalOpen(true); }}
-                        className="inline-flex items-center rounded-lg bg-[#194f2b] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#123b20]"
-                    >
-                        <Plus className="me-1.5 h-4 w-4" />
-                        Jadwalkan Rapat
-                    </button>
+                    {canManage && (
+                        <button
+                            onClick={() => { setSelectedMeeting(null); setIsModalOpen(true); }}
+                            className="inline-flex items-center rounded-lg bg-[#194f2b] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#123b20]"
+                        >
+                            <Plus className="me-1.5 h-4 w-4" />
+                            Jadwalkan Rapat
+                        </button>
+                    )}
                 </div>
             }
         >
@@ -166,20 +170,24 @@ export default function Index({ meetings, allUsers, filters }) {
                                                             <Download className="h-4 w-4" />
                                                         </a>
                                                     )}
-                                                    <button
-                                                        onClick={() => { setSelectedMeeting(m); setIsModalOpen(true); }}
-                                                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
-                                                        title="Ubah Rapat"
-                                                    >
-                                                        <Edit className="h-4 w-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(m)}
-                                                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
-                                                        title="Hapus Rapat"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </button>
+                                                    {canManage && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => { setSelectedMeeting(m); setIsModalOpen(true); }}
+                                                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
+                                                                title="Ubah Rapat"
+                                                            >
+                                                                <Edit className="h-4 w-4" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDelete(m)}
+                                                                className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
+                                                                title="Hapus Rapat"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import StatusBadge from '@/Components/StatusBadge';
 import Pagination from '@/Components/Pagination';
 import DocumentModal from '@/Components/Documents/DocumentModal';
 import { Plus, Search, Download, Edit, Trash2, FileText, Filter, AlertTriangle } from 'lucide-react';
 
 export default function Index({ documents, departments, filters }) {
+    const { user } = usePage().props.auth;
+    const isSuperAdmin = user?.role === 'super_admin';
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [search, setSearch] = useState(filters.search || '');
@@ -46,13 +48,15 @@ export default function Index({ documents, departments, filters }) {
                         <h2 className="text-xl font-bold text-gray-900 leading-tight">Dokumen Master SOP & Pedoman</h2>
                         <p className="text-xs text-gray-500 mt-0.5">Lemari digital manual, SOP, work instruction, dan formulir terstandarisasi PT BSP</p>
                     </div>
-                    <button
-                        onClick={() => { setSelectedDoc(null); setIsModalOpen(true); }}
-                        className="inline-flex items-center rounded-lg bg-[#194f2b] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#123b20]"
-                    >
-                        <Plus className="me-1.5 h-4 w-4" />
-                        Tambah Dokumen
-                    </button>
+                    {isSuperAdmin && (
+                        <button
+                            onClick={() => { setSelectedDoc(null); setIsModalOpen(true); }}
+                            className="inline-flex items-center rounded-lg bg-[#194f2b] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#123b20]"
+                        >
+                            <Plus className="me-1.5 h-4 w-4" />
+                            Tambah Dokumen
+                        </button>
+                    )}
                 </div>
             }
         >
@@ -184,20 +188,24 @@ export default function Index({ documents, departments, filters }) {
                                                 >
                                                     <Download className="h-4 w-4" />
                                                 </a>
-                                                <button
-                                                    onClick={() => { setSelectedDoc(doc); setIsModalOpen(true); }}
-                                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
-                                                    title="Ubah Dokumen"
-                                                >
-                                                    <Edit className="h-4 w-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(doc)}
-                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
-                                                    title="Hapus Dokumen"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
+                                                {isSuperAdmin && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => { setSelectedDoc(doc); setIsModalOpen(true); }}
+                                                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
+                                                            title="Ubah Dokumen"
+                                                        >
+                                                            <Edit className="h-4 w-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(doc)}
+                                                            className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
+                                                            title="Hapus Dokumen"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

@@ -33,6 +33,7 @@ class LetterRequest extends FormRequest
             'subject' => ['required', 'string', 'max:255'],
             'sender' => ['required', 'string', 'max:255'],
             'recipient' => ['required', 'string', 'max:255'],
+            'recipient_department_id' => ['nullable', 'exists:departments,id'],
             'letter_date' => ['required', 'date'],
             'received_date' => ['nullable', 'date'],
             'confidentiality' => ['required', Rule::in(['Biasa', 'Terbatas', 'Rahasia', 'Sangat Rahasia'])],

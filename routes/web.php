@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/letters', [\App\Http\Controllers\LetterController::class, 'store'])->name('letters.store');
     Route::put('/letters/{letter}', [\App\Http\Controllers\LetterController::class, 'update'])->name('letters.update');
     Route::patch('/letters/{letter}/followup', [\App\Http\Controllers\LetterController::class, 'updateFollowUp'])->name('letters.update-followup');
+    Route::patch('/letters/{letter}/approve', [\App\Http\Controllers\LetterController::class, 'approve'])->name('letters.approve');
     Route::delete('/letters/{letter}', [\App\Http\Controllers\LetterController::class, 'destroy'])->name('letters.destroy');
     Route::get('/letters/{letter}/download', [\App\Http\Controllers\LetterController::class, 'download'])->name('letters.download');
 
@@ -50,10 +51,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/meetings/{meeting}', [\App\Http\Controllers\MeetingController::class, 'destroy'])->name('meetings.destroy');
     Route::get('/meetings/{meeting}/download', [\App\Http\Controllers\MeetingController::class, 'downloadAttachment'])->name('meetings.download');
     
-    // Log Aktivitas (Super Admin only)
-    Route::get('/activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])
-        ->middleware('role:super_admin')
-        ->name('activity-logs.index');
+    // Khusus Super Admin (Kelola Pengguna & Audit Trail)
+    Route::middleware('role:super_admin')->group(function () {
+        Route::resource('users', \App\Http\Controllers\UserController::class)->except(['create', 'show', 'edit']);
+        Route::get('/activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('activity-logs.index');
+    });
 });
 
 require __DIR__.'/auth.php';

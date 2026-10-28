@@ -1,15 +1,21 @@
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import StatusBadge from '@/Components/StatusBadge';
 import Pagination from '@/Components/Pagination';
 import LetterModal from '@/Components/Letters/LetterModal';
 import FollowUpModal from '@/Components/Letters/FollowUpModal';
-import { Plus, Search, Download, Edit, Trash2, Send, CheckCircle2, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
+import ApprovalModal from '@/Components/Letters/ApprovalModal';
+import { Plus, Search, Download, Edit, Trash2, Send, CheckCircle2, ArrowDownLeft, ArrowUpRight, CheckSquare } from 'lucide-react';
 
-export default function External({ letters, filters }) {
+export default function External({ letters, departments = [], filters }) {
+    const { user } = usePage().props.auth;
+    const canManage = ['super_admin', 'auditor'].includes(user?.role);
+    const canApprove = ['super_admin', 'manager_spi'].includes(user?.role);
+
     const [isLetterModalOpen, setIsLetterModalOpen] = useState(false);
     const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
+    const [isApprovalOpen, setIsApprovalOpen] = useState(false);
     const [selectedLetter, setSelectedLetter] = useState(null);
     const [search, setSearch] = useState(filters.search || '');
     const [followupFilter, setFollowupFilter] = useState(filters.followup_status || '');
@@ -33,6 +39,12 @@ export default function External({ letters, filters }) {
         }
     };
 
+    const canFollowUp = (letter) => {
+        if (['super_admin', 'manager_spi', 'auditor'].includes(user?.role)) return true;
+        if (user?.role === 'auditee' && letter.recipient_department_id === user.department_id) return true;
+        return false;
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -41,13 +53,15 @@ export default function External({ letters, filters }) {
                         <h2 className="text-xl font-bold text-gray-900 leading-tight">Surat Eksternal & Audit Follow-Up</h2>
                         <p className="text-xs text-gray-500 mt-0.5">Pelacakan korespondensi pihak eksternal, audit komite, dan pemantauan tindak lanjut</p>
                     </div>
-                    <button
-                        onClick={() => { setSelectedLetter(null); setIsLetterModalOpen(true); }}
-                        className="inline-flex items-center rounded-lg bg-[#194f2b] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#123b20]"
-                    >
-                        <Plus className="me-1.5 h-4 w-4" />
-                        Catat Surat Eksternal
-                    </button>
+                    {canManage && (
+                        <button
+                            onClick={() => { setSelectedLetter(null); setIsLetterModalOpen(true); }}
+                            className="inline-flex items-center rounded-lg bg-[#194f2b] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#123b20]"
+                        >
+                            <Plus className="me-1.5 h-4 w-4" />
+                            Catat Surat Eksternal
+                        </button>
+                    )}
                 </div>
             }
         >
@@ -101,9 +115,9 @@ export default function External({ letters, filters }) {
                         <thead className="bg-slate-50 text-xs uppercase font-semibold text-gray-600">
                             <tr>
                                 <th className="px-6 py-3.5">Nomor & Arah</th>
-                                <th className="px-6 py-3.5">Perihal & Instansi</th>
-                                <th className="px-6 py-3.5">Tanggal & Tenggat</th>
+                                <th className="px-6 py-3.5">Perihal & Dept</th>
                                 <th className="px-6 py-3.5">Status Follow-Up</th>
+                                <th className="px-6 py-3.5">Approval</th>
                                 <th className="px-6 py-3.5">Catatan Tindak Lanjut</th>
                                 <th className="px-6 py-3.5 text-center">Aksi</th>
                             </tr>
@@ -131,18 +145,19 @@ export default function External({ letters, filters }) {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="font-semibold text-gray-900 max-w-xs">{l.subject}</div>
-                                            <div className="text-xs text-gray-500 mt-0.5">{l.sender} &rarr; {l.recipient}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-xs">
-                                            <div className="text-gray-600">Surat: {l.letter_date}</div>
-                                            {l.followup_due_date ? (
-                                                <div className="mt-1 font-semibold text-red-600">Tenggat: {l.followup_due_date}</div>
-                                            ) : (
-                                                <div className="text-[11px] text-gray-400">Tanpa batas</div>
-                                            )}
+                                            <div className="text-xs text-gray-500 mt-0.5">
+                                                {l.sender} &rarr; {l.recipient}
+                                                {l.recipient_department && ` (${l.recipient_department.code})`}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <StatusBadge status={l.followup_status} type="followup" />
+                                            {l.followup_due_date && (
+                                                <div className="text-[11px] text-red-600 font-medium mt-1">Batas: {l.followup_due_date}</div>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <StatusBadge status={l.approval_status} type="approval_status" />
                                         </td>
                                         <td className="px-6 py-4 text-xs text-gray-600 max-w-xs">
                                             {l.followup_notes ? (
@@ -153,14 +168,26 @@ export default function External({ letters, filters }) {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                             <div className="inline-flex items-center space-x-1.5">
-                                                <button
-                                                    onClick={() => { setSelectedLetter(l); setIsFollowUpModalOpen(true); }}
-                                                    className="inline-flex items-center px-2 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-lg hover:bg-emerald-100"
-                                                    title="Perbarui Status Follow-Up"
-                                                >
-                                                    <CheckCircle2 className="h-3.5 w-3.5 me-1" />
-                                                    Tindak Lanjut
-                                                </button>
+                                                {canApprove && l.direction === 'outgoing' && l.approval_status === 'pending_approval' && (
+                                                    <button
+                                                        onClick={() => { setSelectedLetter(l); setIsApprovalOpen(true); }}
+                                                        className="inline-flex items-center px-2 py-1 text-xs font-semibold text-amber-800 bg-amber-50 rounded-lg hover:bg-amber-100"
+                                                        title="Review Persetujuan Surat"
+                                                    >
+                                                        <CheckSquare className="h-3.5 w-3.5 me-1" />
+                                                        Approval
+                                                    </button>
+                                                )}
+                                                {canFollowUp(l) && (
+                                                    <button
+                                                        onClick={() => { setSelectedLetter(l); setIsFollowUpModalOpen(true); }}
+                                                        className="inline-flex items-center px-2 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-lg hover:bg-emerald-100"
+                                                        title="Perbarui Status Follow-Up"
+                                                    >
+                                                        <CheckCircle2 className="h-3.5 w-3.5 me-1" />
+                                                        Tindak Lanjut
+                                                    </button>
+                                                )}
                                                 {l.file_path && (
                                                     <a
                                                         href={route('letters.download', l.id)}
@@ -170,20 +197,24 @@ export default function External({ letters, filters }) {
                                                         <Download className="h-4 w-4" />
                                                     </a>
                                                 )}
-                                                <button
-                                                    onClick={() => { setSelectedLetter(l); setIsLetterModalOpen(true); }}
-                                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
-                                                    title="Ubah Surat"
-                                                >
-                                                    <Edit className="h-4 w-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(l)}
-                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
-                                                    title="Hapus Surat"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
+                                                {canManage && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => { setSelectedLetter(l); setIsLetterModalOpen(true); }}
+                                                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
+                                                            title="Ubah Surat"
+                                                        >
+                                                            <Edit className="h-4 w-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(l)}
+                                                            className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
+                                                            title="Hapus Surat"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
@@ -201,11 +232,18 @@ export default function External({ letters, filters }) {
                 onClose={() => setIsLetterModalOpen(false)}
                 letter={selectedLetter}
                 defaultScope="external"
+                departments={departments}
             />
 
             <FollowUpModal
                 isOpen={isFollowUpModalOpen}
                 onClose={() => setIsFollowUpModalOpen(false)}
+                letter={selectedLetter}
+            />
+
+            <ApprovalModal
+                isOpen={isApprovalOpen}
+                onClose={() => setIsApprovalOpen(false)}
                 letter={selectedLetter}
             />
         </AuthenticatedLayout>

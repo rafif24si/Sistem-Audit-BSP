@@ -103,6 +103,10 @@ class MeetingController extends Controller
      */
     public function store(MeetingRequest $request): RedirectResponse
     {
+        if (! in_array(Auth::user()?->role, ['super_admin', 'manager_spi'])) {
+            abort(403, 'Akses Ditolak: Hanya Manager SPI atau Super Admin yang berhak menjadwalkan rapat.');
+        }
+
         $data = $request->validated();
 
         if ($request->hasFile('attachment')) {
@@ -132,6 +136,10 @@ class MeetingController extends Controller
      */
     public function update(MeetingRequest $request, Meeting $meeting): RedirectResponse
     {
+        if (! in_array(Auth::user()?->role, ['super_admin', 'manager_spi'])) {
+            abort(403, 'Akses Ditolak: Hanya Manager SPI atau Super Admin yang berhak memperbarui jadwal rapat.');
+        }
+
         $data = $request->validated();
 
         if ($request->hasFile('attachment')) {
@@ -160,6 +168,10 @@ class MeetingController extends Controller
      */
     public function updateMinutes(MeetingMinutesRequest $request, Meeting $meeting): RedirectResponse
     {
+        if (! in_array(Auth::user()?->role, ['super_admin', 'manager_spi', 'auditor'])) {
+            abort(403, 'Akses Ditolak: Anda tidak memiliki wewenang untuk mengisi atau memperbarui E-Notulen.');
+        }
+
         $data = $request->validated();
 
         $meeting->update($data);
@@ -178,6 +190,10 @@ class MeetingController extends Controller
      */
     public function destroy(Meeting $meeting): RedirectResponse
     {
+        if (! in_array(Auth::user()?->role, ['super_admin', 'manager_spi'])) {
+            abort(403, 'Akses Ditolak: Hanya Manager SPI atau Super Admin yang berhak menghapus agenda rapat.');
+        }
+
         $title = $meeting->title;
         $meeting->delete();
 

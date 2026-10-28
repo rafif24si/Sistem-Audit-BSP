@@ -42,9 +42,13 @@
 - `subject`: varchar(255) (Perihal surat)
 - `sender`: varchar(255) (Asal surat)
 - `recipient`: varchar(255) (Ditujukan kepada)
+- `recipient_department_id`: foreignId (`departments.id`), nullable (Unit Kerja / Departemen Tujuan)
 - `letter_date`: date (Tanggal surat)
 - `received_date`: date, nullable (Tanggal diterima jika surat masuk)
 - `confidentiality`: enum('Biasa', 'Terbatas', 'Rahasia', 'Sangat Rahasia'), default: 'Terbatas'
+- `approval_status`: enum('draft', 'pending_approval', 'approved', 'rejected'), default: 'approved' (Status persetujuan surat keluar)
+- `approved_by`: foreignId (`users.id`), nullable (Manager SPI / Super Admin pemberi persetujuan)
+- `approval_notes`: text, nullable (Catatan persetujuan / revisi)
 - `file_path`: varchar(255), nullable
 - `followup_status`: enum('not_required', 'pending', 'in_progress', 'completed'), default: 'not_required' (Khusus pelacakan Follow-Up Surat Eksternal/Audit)
 - `followup_notes`: text, nullable (Catatan hasil follow-up)

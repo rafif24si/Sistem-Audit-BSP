@@ -69,6 +69,29 @@ export default function StatusBadge({ status, type = 'status' }) {
             Dibatalkan: 'bg-red-100 text-red-800 border-red-200',
         };
         if (map[status]) style = map[status];
+    } else if (type === 'approval_status') {
+        const map = {
+            draft: {
+                label: 'Draf',
+                style: 'bg-slate-100 text-slate-700 border-slate-200',
+            },
+            pending_approval: {
+                label: 'Menunggu Approval',
+                style: 'bg-amber-100 text-amber-800 border-amber-200',
+            },
+            approved: {
+                label: 'Disetujui',
+                style: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+            },
+            rejected: {
+                label: 'Ditolak',
+                style: 'bg-red-100 text-red-800 border-red-200',
+            },
+        };
+        if (map[status]) {
+            label = map[status].label;
+            style = map[status].style;
+        }
     }
 
     return (

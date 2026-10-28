@@ -21,9 +21,13 @@ class Letter extends Model
         'subject',
         'sender',
         'recipient',
+        'recipient_department_id',
         'letter_date',
         'received_date',
         'confidentiality',
+        'approval_status',
+        'approved_by',
+        'approval_notes',
         'file_path',
         'followup_status',
         'followup_notes',
@@ -43,6 +47,16 @@ class Letter extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function recipientDepartment(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'recipient_department_id');
+    }
+
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     public function dispositions(): HasMany

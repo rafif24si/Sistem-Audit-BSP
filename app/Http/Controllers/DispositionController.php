@@ -23,8 +23,12 @@ class DispositionController extends Controller
     public function index(Request $request): Response
     {
         $user = Auth::user();
-        $defaultTab = in_array($user->role, ['super_admin', 'manager_spi']) ? 'all' : 'received';
-        $tab = $request->input('tab', $defaultTab);
+        if ($user->role === 'auditee') {
+            $tab = 'received';
+        } else {
+            $defaultTab = in_array($user->role, ['super_admin', 'manager_spi']) ? 'all' : 'received';
+            $tab = $request->input('tab', $defaultTab);
+        }
 
         $search = $request->input('search');
         $urgency = $request->input('urgency');
@@ -32,7 +36,7 @@ class DispositionController extends Controller
 
         $query = Disposition::with(['letter', 'sender', 'recipient']);
 
-        if ($tab === 'received') {
+        if ($user->role === 'auditee' || $tab === 'received') {
             $query->where('to_user_id', $user->id);
         } elseif ($tab === 'given') {
             $query->where('from_user_id', $user->id);
@@ -95,6 +99,10 @@ class DispositionController extends Controller
      */
     public function store(DispositionRequest $request): RedirectResponse
     {
+        if (! in_array(Auth::user()?->role, ['super_admin', 'manager_spi'])) {
+            abort(403, 'Akses Ditolak: Hanya Manager SPI atau Super Admin yang berhak memberikan lembar disposisi.');
+        }
+
         $data = $request->validated();
         $data['from_user_id'] = Auth::id();
         $data['status'] = 'pending';
@@ -118,6 +126,10 @@ class DispositionController extends Controller
      */
     public function update(DispositionRequest $request, Disposition $disposition): RedirectResponse
     {
+        if (! in_array(Auth::user()?->role, ['super_admin', 'manager_spi'])) {
+            abort(403, 'Akses Ditolak: Hanya Manager SPI atau Super Admin yang berhak memperbarui instruksi disposisi.');
+        }
+
         $data = $request->validated();
         $disposition->update($data);
 
@@ -135,6 +147,14 @@ class DispositionController extends Controller
      */
     public function updateStatus(DispositionCompletionRequest $request, Disposition $disposition): RedirectResponse
     {
+        $user = Auth::user();
+        $isAssigned = $disposition->to_user_id === $user->id;
+        $isPrivileged = in_array($user->role, ['super_admin', 'manager_spi']);
+
+        if (! $isAssigned && ! $isPrivileged) {
+            abort(403, 'Akses Ditolak: Anda hanya dapat menindaklanjuti lembar disposisi yang ditugaskan kepada Anda.');
+        }
+
         $data = $request->validated();
 
         if ($data['status'] === 'completed' && ! $disposition->completed_at) {
@@ -159,6 +179,10 @@ class DispositionController extends Controller
      */
     public function destroy(Disposition $disposition): RedirectResponse
     {
+        if (! in_array(Auth::user()?->role, ['super_admin', 'manager_spi'])) {
+            abort(403, 'Akses Ditolak: Hanya Manager SPI atau Super Admin yang berhak menghapus disposisi.');
+        }
+
         $letterNum = $disposition->letter?->letter_number;
         $disposition->delete();
 

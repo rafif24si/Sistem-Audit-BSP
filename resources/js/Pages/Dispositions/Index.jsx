@@ -5,10 +5,11 @@ import StatusBadge from '@/Components/StatusBadge';
 import Pagination from '@/Components/Pagination';
 import DispositionModal from '@/Components/Dispositions/DispositionModal';
 import CompleteDispositionModal from '@/Components/Dispositions/CompleteDispositionModal';
-import { Plus, Search, CheckSquare, Edit, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Plus, Search, CheckSquare, Edit, Trash2, CheckCircle2 } from 'lucide-react';
 
 export default function Index({ dispositions, incomingLetters, staffUsers, filters }) {
     const user = usePage().props.auth.user;
+    const canManage = ['super_admin', 'manager_spi'].includes(user?.role);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
     const [selectedDisposition, setSelectedDisposition] = useState(null);
@@ -16,7 +17,7 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
     const [search, setSearch] = useState(filters.search || '');
     const [urgencyFilter, setUrgencyFilter] = useState(filters.urgency || '');
     const [statusFilter, setStatusFilter] = useState(filters.status || '');
-    const activeTab = filters.tab || (['super_admin', 'manager_spi'].includes(user?.role) ? 'all' : 'received');
+    const activeTab = filters.tab || (canManage ? 'all' : 'received');
 
     const handleFilterChange = (newFilters = {}) => {
         router.get(
@@ -31,17 +32,11 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
         );
     };
 
-    const handleTabChange = (tabName) => {
-        router.get(route('dispositions.index'), { ...filters, tab: tabName }, { preserveState: true });
-    };
-
     const handleDelete = (disp) => {
         if (confirm('Apakah Anda yakin ingin menghapus lembar disposisi ini?')) {
             router.delete(route('dispositions.destroy', disp.id));
         }
     };
-
-    const canCreate = ['super_admin', 'manager_spi'].includes(user?.role);
 
     return (
         <AuthenticatedLayout
@@ -51,7 +46,7 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
                         <h2 className="text-xl font-bold text-gray-900 leading-tight">Lembar Disposisi Digital</h2>
                         <p className="text-xs text-gray-500 mt-0.5">Pendelegasian instruksi dan tindak lanjut pimpinan audit pada surat masuk SPI PT BSP</p>
                     </div>
-                    {canCreate && (
+                    {canManage && (
                         <button
                             onClick={() => { setSelectedDisposition(null); setIsCreateModalOpen(true); }}
                             className="inline-flex items-center rounded-lg bg-[#194f2b] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#123b20]"
@@ -65,37 +60,26 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
         >
             <Head title="Lembar Disposisi - SPI PT BSP" />
 
-            {/* Tabs */}
-            <div className="border-b border-gray-200 mb-6 bg-white rounded-t-xl px-4 pt-2 shadow-sm">
-                <nav className="flex space-x-6">
-                    <button
-                        onClick={() => handleTabChange('all')}
-                        className={`py-3 px-1 border-b-2 text-sm font-semibold transition-colors ${
-                            activeTab === 'all' ? 'border-emerald-700 text-emerald-800' : 'border-transparent text-gray-500 hover:text-gray-700'
-                        }`}
-                    >
-                        Semua Disposisi
-                    </button>
-                    <button
-                        onClick={() => handleTabChange('received')}
-                        className={`py-3 px-1 border-b-2 text-sm font-semibold transition-colors ${
-                            activeTab === 'received' ? 'border-blue-600 text-blue-700' : 'border-transparent text-gray-500 hover:text-gray-700'
-                        }`}
-                    >
-                        Tugas Saya (Disposisi Masuk)
-                    </button>
-                    <button
-                        onClick={() => handleTabChange('given')}
-                        className={`py-3 px-1 border-b-2 text-sm font-semibold transition-colors ${
-                            activeTab === 'given' ? 'border-purple-600 text-purple-700' : 'border-transparent text-gray-500 hover:text-gray-700'
-                        }`}
-                    >
-                        Instruksi Saya (Disposisi Keluar)
-                    </button>
-                </nav>
-            </div>
+            {canManage && (
+                <div className="border-b border-gray-200 mb-6 bg-white rounded-t-xl px-4 pt-2 shadow-sm">
+                    <nav className="flex space-x-6">
+                        {[
+                            { id: 'all', label: 'Semua Disposisi', color: 'border-emerald-700 text-emerald-800' },
+                            { id: 'received', label: 'Tugas Saya (Disposisi Masuk)', color: 'border-blue-600 text-blue-700' },
+                            { id: 'given', label: 'Instruksi Saya (Disposisi Keluar)', color: 'border-purple-600 text-purple-700' }
+                        ].map((t) => (
+                            <button
+                                key={t.id}
+                                onClick={() => router.get(route('dispositions.index'), { ...filters, tab: t.id }, { preserveState: true })}
+                                className={`py-3 px-1 border-b-2 text-sm font-semibold transition-colors ${activeTab === t.id ? t.color : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                            >
+                                {t.label}
+                            </button>
+                        ))}
+                    </nav>
+                </div>
+            )}
 
-            {/* Filter Bar */}
             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                     <div className="relative sm:col-span-2">
@@ -115,7 +99,7 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
                             onChange={(e) => { setUrgencyFilter(e.target.value); handleFilterChange({ urgency: e.target.value }); }}
                             className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
                         >
-                            <option value="">Semua Kecepatan</option>
+                            <option value="">Semua Derajat (Urgency)</option>
                             <option value="Biasa">Biasa</option>
                             <option value="Segera">Segera</option>
                             <option value="Kilat">Kilat</option>
@@ -127,7 +111,7 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
                             onChange={(e) => { setStatusFilter(e.target.value); handleFilterChange({ status: e.target.value }); }}
                             className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
                         >
-                            <option value="">Semua Status</option>
+                            <option value="">Semua Status Tindak Lanjut</option>
                             <option value="pending">Belum Diproses</option>
                             <option value="in_progress">Dalam Proses</option>
                             <option value="completed">Selesai</option>
@@ -136,16 +120,15 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
                 </div>
             </div>
 
-            {/* Data Table */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
                         <thead className="bg-slate-50 text-xs uppercase font-semibold text-gray-600">
                             <tr>
-                                <th className="px-6 py-3.5">Surat Masuk</th>
-                                <th className="px-6 py-3.5">Instruksi & Arahan</th>
+                                <th className="px-6 py-3.5">Surat Terkait</th>
+                                <th className="px-6 py-3.5">Instruksi & Catatan</th>
                                 <th className="px-6 py-3.5">Pemberi & Penerima</th>
-                                <th className="px-6 py-3.5">Kecepatan & Batas</th>
+                                <th className="px-6 py-3.5">Derajat</th>
                                 <th className="px-6 py-3.5">Status</th>
                                 <th className="px-6 py-3.5 text-center">Aksi</th>
                             </tr>
@@ -161,22 +144,17 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
                             ) : (
                                 dispositions.data.map((disp) => {
                                     const isRecipient = user?.id === disp.to_user_id;
-                                    const isSender = user?.id === disp.from_user_id || user?.role === 'super_admin';
+                                    const isSender = (user?.id === disp.from_user_id || user?.role === 'super_admin') && canManage;
 
                                     return (
                                         <tr key={disp.id} className="hover:bg-slate-50/80 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="font-mono font-medium text-xs text-emerald-950">{disp.letter?.letter_number}</div>
                                                 <div className="font-semibold text-gray-900 text-xs max-w-xs mt-0.5 line-clamp-2">{disp.letter?.subject}</div>
-                                                <div className="text-[11px] text-gray-400 mt-0.5">Asal: {disp.letter?.sender}</div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="font-bold text-emerald-900 text-xs">{disp.instruction}</div>
-                                                {disp.notes ? (
-                                                    <p className="text-xs text-gray-600 mt-1 max-w-xs line-clamp-2">{disp.notes}</p>
-                                                ) : (
-                                                    <span className="text-xs text-gray-400 italic">Tanpa catatan tambahan</span>
-                                                )}
+                                                <p className="text-xs text-gray-600 mt-1 max-w-xs line-clamp-2">{disp.notes || 'Tanpa catatan tambahan'}</p>
                                                 {disp.completion_notes && (
                                                     <div className="mt-1.5 rounded bg-emerald-50 p-1.5 text-[11px] text-emerald-800 border border-emerald-200">
                                                         <span className="font-semibold">Laporan:</span> {disp.completion_notes}
@@ -193,7 +171,6 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <StatusBadge status={disp.status} type="disposition_status" />
-                                                {disp.completed_at && <div className="text-[10px] text-gray-400 mt-1">Selesai: {disp.completed_at.substring(0, 10)}</div>}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-center">
                                                 <div className="inline-flex items-center space-x-1.5">
@@ -237,7 +214,6 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
                 <Pagination links={dispositions.links} />
             </div>
 
-            {/* Modals */}
             <DispositionModal
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}

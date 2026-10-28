@@ -3,9 +3,16 @@ import { useForm } from '@inertiajs/react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
+import LetterFollowUpSection from '@/Components/Letters/LetterFollowUpSection';
 import { X, Sparkles } from 'lucide-react';
 
-export default function LetterModal({ isOpen, onClose, letter = null, defaultScope = 'internal' }) {
+export default function LetterModal({
+    isOpen,
+    onClose,
+    letter = null,
+    defaultScope = 'internal',
+    departments = [],
+}) {
     const isEdit = !!letter;
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -18,6 +25,7 @@ export default function LetterModal({ isOpen, onClose, letter = null, defaultSco
         subject: '',
         sender: '',
         recipient: '',
+        recipient_department_id: '',
         letter_date: new Date().toISOString().split('T')[0],
         received_date: '',
         confidentiality: 'Terbatas',
@@ -39,6 +47,7 @@ export default function LetterModal({ isOpen, onClose, letter = null, defaultSco
                 subject: letter.subject || '',
                 sender: letter.sender || '',
                 recipient: letter.recipient || '',
+                recipient_department_id: letter.recipient_department_id || '',
                 letter_date: letter.letter_date ? letter.letter_date.substring(0, 10) : '',
                 received_date: letter.received_date ? letter.received_date.substring(0, 10) : '',
                 confidentiality: letter.confidentiality || 'Terbatas',
@@ -55,6 +64,7 @@ export default function LetterModal({ isOpen, onClose, letter = null, defaultSco
                 direction: 'incoming',
                 letter_type_code: 'ST',
                 confidentiality: 'Terbatas',
+                recipient_department_id: '',
                 letter_date: new Date().toISOString().split('T')[0],
                 followup_status: defaultScope === 'external' ? 'pending' : 'not_required',
             });
@@ -72,9 +82,7 @@ export default function LetterModal({ isOpen, onClose, letter = null, defaultSco
                 })
             );
             const result = await res.json();
-            if (result.letter_number) {
-                setData('letter_number', result.letter_number);
-            }
+            if (result.letter_number) setData('letter_number', result.letter_number);
         } catch (err) {
             console.error(err);
         }
@@ -163,19 +171,6 @@ export default function LetterModal({ isOpen, onClose, letter = null, defaultSco
                         <InputError message={errors.letter_number} className="mt-1" />
                     </div>
 
-                    {data.direction === 'incoming' && (
-                        <div>
-                            <InputLabel htmlFor="agenda_number" value="Nomor Agenda (Khusus Surat Masuk)" />
-                            <TextInput
-                                id="agenda_number"
-                                value={data.agenda_number}
-                                placeholder="Nomor agenda berkas masuk"
-                                className="mt-1 block w-full"
-                                onChange={(e) => setData('agenda_number', e.target.value)}
-                            />
-                        </div>
-                    )}
-
                     <div>
                         <InputLabel htmlFor="subject" value="Perihal Surat" />
                         <TextInput
@@ -203,17 +198,35 @@ export default function LetterModal({ isOpen, onClose, letter = null, defaultSco
                             <InputError message={errors.sender} className="mt-1" />
                         </div>
                         <div>
-                            <InputLabel htmlFor="recipient" value="Tujuan Surat / Penerima" />
+                            <InputLabel htmlFor="recipient" value="Tujuan Surat / Penerima (Nama/Jabatan)" />
                             <TextInput
                                 id="recipient"
                                 value={data.recipient}
-                                placeholder="Pejabat / Departemen tujuan"
+                                placeholder="Pejabat / PIC penerima"
                                 className="mt-1 block w-full"
                                 onChange={(e) => setData('recipient', e.target.value)}
                                 required
                             />
                             <InputError message={errors.recipient} className="mt-1" />
                         </div>
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="recipient_department_id" value="Departemen Tujuan (Unit Kerja Terkait)" />
+                        <select
+                            id="recipient_department_id"
+                            value={data.recipient_department_id}
+                            onChange={(e) => setData('recipient_department_id', e.target.value)}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
+                        >
+                            <option value="">-- Pilih Departemen Tujuan (Opsional) --</option>
+                            {departments.map((dept) => (
+                                <option key={dept.id} value={dept.id}>
+                                    {dept.code} - {dept.name}
+                                </option>
+                            ))}
+                        </select>
+                        <InputError message={errors.recipient_department_id} className="mt-1" />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -255,39 +268,7 @@ export default function LetterModal({ isOpen, onClose, letter = null, defaultSco
                         </div>
                     </div>
 
-                    {data.scope === 'external' && (
-                        <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-4 space-y-3">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-blue-900">
-                                Pelacakan Tindak Lanjut (Follow-Up Eksternal)
-                            </h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <InputLabel htmlFor="followup_status" value="Status Follow-Up" />
-                                    <select
-                                        id="followup_status"
-                                        value={data.followup_status}
-                                        onChange={(e) => setData('followup_status', e.target.value)}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
-                                    >
-                                        <option value="pending">Belum Tindak Lanjut</option>
-                                        <option value="in_progress">Dalam Proses</option>
-                                        <option value="completed">Selesai</option>
-                                        <option value="not_required">Tidak Perlu</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <InputLabel htmlFor="followup_due_date" value="Tenggat Waktu Follow-Up" />
-                                    <TextInput
-                                        id="followup_due_date"
-                                        type="date"
-                                        value={data.followup_due_date}
-                                        className="mt-1 block w-full"
-                                        onChange={(e) => setData('followup_due_date', e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    <LetterFollowUpSection data={data} setData={setData} />
 
                     <div>
                         <InputLabel htmlFor="file" value="File Lampiran Surat (Maks. 10MB)" />
