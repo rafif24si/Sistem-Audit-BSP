@@ -4,7 +4,7 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import StatusBadge from '@/Components/StatusBadge';
 import Pagination from '@/Components/Pagination';
 import MeetingModal from '@/Components/Meetings/MeetingModal';
-import { Plus, Search, Calendar, MapPin, Users, FileText, Download, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Calendar, MapPin, Video, Users, FileText, Download, Edit, Trash2 } from 'lucide-react';
 
 export default function Index({ meetings, allUsers, filters }) {
     const { user } = usePage().props.auth;
@@ -136,9 +136,27 @@ export default function Index({ meetings, allUsers, filters }) {
                                                 <div className="mt-0.5 text-gray-500">{m.start_time} - {m.end_time || 'Selesai'} WIB</div>
                                             </td>
                                             <td className="px-6 py-4 text-xs">
-                                                <div className="flex items-center text-gray-700">
-                                                    <MapPin className="h-3.5 w-3.5 me-1 text-gray-400 shrink-0" />
-                                                    <span className="truncate max-w-xs">{m.location}</span>
+                                                <div className="flex items-center space-x-1.5 mb-1">
+                                                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                                                        m.meeting_mode === 'Online'
+                                                            ? 'bg-blue-100 text-blue-800'
+                                                            : 'bg-gray-100 text-gray-700'
+                                                    }`}>
+                                                        {m.meeting_mode === 'Online' ? (
+                                                            <>
+                                                                <Video className="h-3 w-3 me-1 text-blue-600" />
+                                                                Online ({m.platform || 'Zoom'})
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <MapPin className="h-3 w-3 me-1 text-gray-500" />
+                                                                Offline (Tatap Muka)
+                                                            </>
+                                                        )}
+                                                    </span>
+                                                </div>
+                                                <div className="text-gray-800 font-medium truncate max-w-xs" title={m.location}>
+                                                    {m.location}
                                                 </div>
                                                 <div className="flex items-center text-gray-500 mt-1">
                                                     <Users className="h-3.5 w-3.5 me-1 text-gray-400 shrink-0" />

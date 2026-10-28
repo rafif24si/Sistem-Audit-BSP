@@ -1,22 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
-import { X, Calendar, Plus, Trash2 } from 'lucide-react';
+import MeetingInviteesSection from '@/Components/Meetings/MeetingInviteesSection';
+import MeetingModeLocationSection from '@/Components/Meetings/MeetingModeLocationSection';
+import MeetingDateTimeSection from '@/Components/Meetings/MeetingDateTimeSection';
+import { X, Calendar } from 'lucide-react';
 
 export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers = [] }) {
     const isEdit = !!meeting;
-    const [customInvitee, setCustomInvitee] = useState('');
 
     const { data, setData, post, processing, errors, reset } = useForm({
         _method: isEdit ? 'PUT' : 'POST',
         title: '',
         meeting_type: 'Entry Meeting',
+        meeting_mode: 'Offline',
+        platform: 'Tatap Muka',
         meeting_date: new Date().toISOString().split('T')[0],
         start_time: '09:00',
         end_time: '11:00',
-        location: 'Ruang Rapat SPI Lantai 3',
+        location: '',
         invitees: [],
         confidentiality: 'Terbatas',
         status: 'Terjadwal',
@@ -29,6 +33,8 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
                 _method: 'PUT',
                 title: meeting.title || '',
                 meeting_type: meeting.meeting_type || 'Entry Meeting',
+                meeting_mode: meeting.meeting_mode || 'Offline',
+                platform: meeting.platform || (meeting.meeting_mode === 'Online' ? 'Zoom' : 'Tatap Muka'),
                 meeting_date: meeting.meeting_date ? meeting.meeting_date.substring(0, 10) : '',
                 start_time: meeting.start_time || '09:00',
                 end_time: meeting.end_time || '',
@@ -44,6 +50,8 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
                 _method: 'POST',
                 title: '',
                 meeting_type: 'Entry Meeting',
+                meeting_mode: 'Offline',
+                platform: 'Tatap Muka',
                 meeting_date: new Date().toISOString().split('T')[0],
                 start_time: '09:00',
                 end_time: '11:00',
@@ -58,6 +66,24 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
 
     if (!isOpen) return null;
 
+    const handleModeChange = (newMode) => {
+        if (newMode === 'Offline') {
+            setData((prev) => ({
+                ...prev,
+                meeting_mode: 'Offline',
+                platform: 'Tatap Muka',
+                location: prev.location.startsWith('http') ? 'Ruang Rapat SPI Lantai 3' : prev.location,
+            }));
+        } else {
+            setData((prev) => ({
+                ...prev,
+                meeting_mode: 'Online',
+                platform: prev.platform === 'Tatap Muka' ? 'Zoom' : prev.platform,
+                location: prev.location.startsWith('Ruang') ? '' : prev.location,
+            }));
+        }
+    };
+
     const addInvitee = (name) => {
         if (!name || data.invitees.includes(name)) return;
         setData('invitees', [...data.invitees, name]);
@@ -65,14 +91,6 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
 
     const removeInvitee = (index) => {
         setData('invitees', data.invitees.filter((_, i) => i !== index));
-    };
-
-    const handleAddCustom = (e) => {
-        e.preventDefault();
-        if (customInvitee.trim()) {
-            addInvitee(customInvitee.trim());
-            setCustomInvitee('');
-        }
     };
 
     const submit = (e) => {
@@ -115,157 +133,44 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
                         <InputError message={errors.title} className="mt-1" />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <InputLabel htmlFor="meeting_type" value="Jenis Rapat Audit" />
-                            <select
-                                id="meeting_type"
-                                value={data.meeting_type}
-                                onChange={(e) => setData('meeting_type', e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
-                            >
-                                <option value="Entry Meeting">Entry Meeting</option>
-                                <option value="Exit Meeting">Exit Meeting</option>
-                                <option value="Rapat Internal SPI">Rapat Internal SPI</option>
-                                <option value="Rapat Pimpinan">Rapat Pimpinan</option>
-                            </select>
-                        </div>
-                        <div>
-                            <InputLabel htmlFor="location" value="Lokasi / Tautan Online" />
-                            <TextInput
-                                id="location"
-                                value={data.location}
-                                placeholder="Ruang Rapat Utama / Link Teams"
-                                className="mt-1 block w-full"
-                                onChange={(e) => setData('location', e.target.value)}
-                                required
-                            />
-                            <InputError message={errors.location} className="mt-1" />
-                        </div>
+                    <div>
+                        <InputLabel htmlFor="meeting_type" value="Jenis Rapat Audit" />
+                        <select
+                            id="meeting_type"
+                            value={data.meeting_type}
+                            onChange={(e) => setData('meeting_type', e.target.value)}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
+                        >
+                            <option value="Entry Meeting">Entry Meeting</option>
+                            <option value="Exit Meeting">Exit Meeting</option>
+                            <option value="Rapat Internal SPI">Rapat Internal SPI</option>
+                            <option value="Rapat Pimpinan">Rapat Pimpinan</option>
+                        </select>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <InputLabel htmlFor="meeting_date" value="Tanggal Rapat" />
-                            <TextInput
-                                id="meeting_date"
-                                type="date"
-                                value={data.meeting_date}
-                                className="mt-1 block w-full"
-                                onChange={(e) => setData('meeting_date', e.target.value)}
-                                required
-                            />
-                            <InputError message={errors.meeting_date} className="mt-1" />
-                        </div>
-                        <div>
-                            <InputLabel htmlFor="start_time" value="Waktu Mulai" />
-                            <TextInput
-                                id="start_time"
-                                type="time"
-                                value={data.start_time}
-                                className="mt-1 block w-full"
-                                onChange={(e) => setData('start_time', e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div>
-                            <InputLabel htmlFor="end_time" value="Waktu Selesai (Est)" />
-                            <TextInput
-                                id="end_time"
-                                type="time"
-                                value={data.end_time}
-                                className="mt-1 block w-full"
-                                onChange={(e) => setData('end_time', e.target.value)}
-                            />
-                        </div>
-                    </div>
+                    <MeetingModeLocationSection
+                        meetingMode={data.meeting_mode}
+                        platform={data.platform}
+                        location={data.location}
+                        onModeChange={handleModeChange}
+                        onPlatformChange={(val) => setData('platform', val)}
+                        onLocationChange={(val) => setData('location', val)}
+                        errors={errors}
+                    />
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <InputLabel htmlFor="confidentiality" value="Kerahasiaan Notulen" />
-                            <select
-                                id="confidentiality"
-                                value={data.confidentiality}
-                                onChange={(e) => setData('confidentiality', e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
-                            >
-                                <option value="Terbatas">Terbatas (Bawaan SPI)</option>
-                                <option value="Biasa">Biasa</option>
-                                <option value="Rahasia">Rahasia</option>
-                            </select>
-                        </div>
-                        <div>
-                            <InputLabel htmlFor="status" value="Status Rapat" />
-                            <select
-                                id="status"
-                                value={data.status}
-                                onChange={(e) => setData('status', e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
-                            >
-                                <option value="Terjadwal">Terjadwal</option>
-                                <option value="Berlangsung">Berlangsung</option>
-                                <option value="Selesai">Selesai</option>
-                                <option value="Dibatalkan">Dibatalkan</option>
-                            </select>
-                        </div>
-                    </div>
+                    <MeetingDateTimeSection
+                        data={data}
+                        setData={setData}
+                        errors={errors}
+                    />
 
-                    {/* Invitees selector */}
-                    <div className="rounded-xl border border-gray-200 bg-slate-50/80 p-4 space-y-3">
-                        <InputLabel value="Daftar Undangan / Peserta Rapat" />
-                        <div className="flex gap-2">
-                            <select
-                                onChange={(e) => {
-                                    if (e.target.value) {
-                                        addInvitee(e.target.value);
-                                        e.target.value = '';
-                                    }
-                                }}
-                                className="flex-1 rounded-md border-gray-300 shadow-sm text-xs focus:border-emerald-600 focus:ring-emerald-600"
-                            >
-                                <option value="">Pilih dari Pengguna Sistem PT BSP...</option>
-                                {allUsers.map((u) => (
-                                    <option key={u.id} value={u.name}>
-                                        {u.name} ({u.role.toUpperCase()} - {u.department?.code || 'BSP'})
-                                    </option>
-                                ))}
-                            </select>
-                            <input
-                                type="text"
-                                placeholder="Atau ketik nama/eksternal..."
-                                value={customInvitee}
-                                onChange={(e) => setCustomInvitee(e.target.value)}
-                                onKeyDown={(e) => { if (e.key === 'Enter') handleAddCustom(e); }}
-                                className="rounded-md border-gray-300 shadow-sm text-xs w-48"
-                            />
-                            <button
-                                type="button"
-                                onClick={handleAddCustom}
-                                className="rounded-md bg-emerald-700 px-3 py-1.5 text-xs text-white hover:bg-emerald-800"
-                            >
-                                Tambah
-                            </button>
-                        </div>
-
-                        <div className="flex flex-wrap gap-1.5 mt-2 max-h-24 overflow-y-auto">
-                            {data.invitees.map((inv, idx) => (
-                                <span
-                                    key={idx}
-                                    className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-800 border border-gray-200 shadow-2xs"
-                                >
-                                    {inv}
-                                    <button
-                                        type="button"
-                                        onClick={() => removeInvitee(idx)}
-                                        className="ms-1.5 text-gray-400 hover:text-red-600"
-                                    >
-                                        &times;
-                                    </button>
-                                </span>
-                            ))}
-                        </div>
-                        <InputError message={errors.invitees} className="mt-1" />
-                    </div>
+                    <MeetingInviteesSection
+                        allUsers={allUsers}
+                        invitees={data.invitees}
+                        addInvitee={addInvitee}
+                        removeInvitee={removeInvitee}
+                        error={errors.invitees}
+                    />
 
                     <div>
                         <InputLabel htmlFor="attachment" value="Lampiran Materi / Absensi Rapat (Maks. 10MB)" />

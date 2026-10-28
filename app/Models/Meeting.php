@@ -14,6 +14,8 @@ class Meeting extends Model
     protected $fillable = [
         'title',
         'meeting_type',
+        'meeting_mode',
+        'platform',
         'meeting_date',
         'start_time',
         'end_time',

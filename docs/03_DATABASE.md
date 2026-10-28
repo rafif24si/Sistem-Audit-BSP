@@ -74,10 +74,12 @@
 - `id`: bigint unsigned, PK
 - `title`: varchar(255) (Perihal / Agenda Rapat)
 - `meeting_type`: enum('Entry Meeting', 'Exit Meeting', 'Rapat Internal SPI', 'Rapat Pimpinan')
+- `meeting_mode`: enum('Offline', 'Online'), default: 'Offline' (Pilihan pelaksanaan rapat Offline atau Online)
+- `platform`: enum('Tatap Muka', 'Zoom', 'Google Meet', 'Microsoft Teams'), nullable, default: 'Tatap Muka' (Jika `meeting_mode` = 'Online', pilih `Zoom`, `Google Meet`, atau `Microsoft Teams`; jika `Offline`, bernilai `Tatap Muka` atau `null`)
 - `meeting_date`: date (Tanggal pelaksanaan rapat)
 - `start_time`: time
 - `end_time`: time, nullable
-- `location`: varchar(255) (Lokasi ruangan atau tautan meeting online)
+- `location`: varchar(255) (Nama tempat/ruangan fisik jika Offline, atau tautan/URL meeting jika Online)
 - `invitees`: json (Daftar nama/user_id peserta undangan rapat)
 - `discussion_points`: longText, nullable (Isi pembahasan rapat / Notulen)
 - `decisions`: longText, nullable (Hasil keputusan / kesimpulan rapat)

@@ -20,6 +20,8 @@ class MeetingRequest extends FormRequest
                 'required',
                 Rule::in(['Entry Meeting', 'Exit Meeting', 'Rapat Internal SPI', 'Rapat Pimpinan']),
             ],
+            'meeting_mode' => ['required', Rule::in(['Offline', 'Online'])],
+            'platform' => ['nullable', Rule::in(['Tatap Muka', 'Zoom', 'Google Meet', 'Microsoft Teams'])],
             'meeting_date' => ['required', 'date'],
             'start_time' => ['required'],
             'end_time' => ['nullable'],

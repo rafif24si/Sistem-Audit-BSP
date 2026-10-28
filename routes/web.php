@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/meetings/{meeting}/minutes', [\App\Http\Controllers\MeetingController::class, 'updateMinutes'])->name('meetings.update-minutes');
     Route::delete('/meetings/{meeting}', [\App\Http\Controllers\MeetingController::class, 'destroy'])->name('meetings.destroy');
     Route::get('/meetings/{meeting}/download', [\App\Http\Controllers\MeetingController::class, 'downloadAttachment'])->name('meetings.download');
+    Route::get('/meetings/{meeting}/pdf', [\App\Http\Controllers\MeetingController::class, 'exportPdf'])->name('meetings.pdf');
     
     // Khusus Super Admin (Kelola Pengguna & Audit Trail)
     Route::middleware('role:super_admin')->group(function () {

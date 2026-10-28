@@ -97,7 +97,7 @@ export default function Topbar({ onMenuClick }) {
                                 className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                             >
                                 <LogOut className="me-2.5 h-4 w-4 text-red-500" />
-                                Keluar Sistem
+                                Log Out
                             </Link>
                         </div>
                     )}

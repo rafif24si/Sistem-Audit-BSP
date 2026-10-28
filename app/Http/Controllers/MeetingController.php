@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MeetingController extends Controller
@@ -109,6 +111,12 @@ class MeetingController extends Controller
 
         $data = $request->validated();
 
+        if (($data['meeting_mode'] ?? 'Offline') === 'Offline') {
+            $data['platform'] = 'Tatap Muka';
+        } elseif (empty($data['platform'])) {
+            $data['platform'] = 'Zoom';
+        }
+
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
             $safeTitle = Str::slug($data['title']);
@@ -141,6 +149,12 @@ class MeetingController extends Controller
         }
 
         $data = $request->validated();
+
+        if (($data['meeting_mode'] ?? 'Offline') === 'Offline') {
+            $data['platform'] = 'Tatap Muka';
+        } elseif (empty($data['platform'])) {
+            $data['platform'] = 'Zoom';
+        }
 
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
@@ -232,5 +246,43 @@ class MeetingController extends Controller
         );
 
         return Storage::disk('local')->download($meeting->attachment_path, basename($meeting->attachment_path));
+    }
+
+    /**
+     * Export meeting minutes (E-Notulen) as an official PDF document.
+     */
+    public function exportPdf(Meeting $meeting): HttpResponse
+    {
+        $user = Auth::user();
+
+        // Enforce Meeting Security (Auditee access check)
+        if ($user->role === 'auditee') {
+            $invitees = is_array($meeting->invitees) ? $meeting->invitees : [];
+            $isInvited = in_array($user->name, $invitees) || in_array($user->email, $invitees);
+
+            if (! $isInvited && $user->id !== $meeting->created_by) {
+                abort(403, 'Akses Ditolak: Anda tidak memiliki izin untuk mengunduh PDF notulen rapat ini.');
+            }
+        }
+
+        $meeting->load(['creator.department']);
+
+        $logoPath = public_path('images/logo.png');
+        $logoBase64 = file_exists($logoPath) ? base64_encode(file_get_contents($logoPath)) : null;
+
+        ActivityLogger::log(
+            'EXPORT_MEETING_PDF',
+            "Mengunduh risalah notulen PDF resmi: {$meeting->title}"
+        );
+
+        $safeTitle = Str::slug($meeting->title);
+        $fileName = "notulen_{$safeTitle}_" . date('Ymd_His') . ".pdf";
+
+        $pdf = Pdf::loadView('pdf.notulen', [
+            'meeting' => $meeting,
+            'logoBase64' => $logoBase64,
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download($fileName);
     }
 }

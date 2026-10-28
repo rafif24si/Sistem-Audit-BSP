@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import StatusBadge from '@/Components/StatusBadge';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
-import { ArrowLeft, Calendar, MapPin, Users, Download, Save, CheckCircle2, Shield } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Video, Users, Download, FileDown, Save, CheckCircle2, Shield, ExternalLink } from 'lucide-react';
 
 export default function Show({ meeting, canEditNotulen }) {
     const inviteesList = Array.isArray(meeting.invitees) ? meeting.invitees : [];
@@ -26,7 +26,7 @@ export default function Show({ meeting, canEditNotulen }) {
                     <div className="flex items-center space-x-3">
                         <Link
                             href={route('meetings.index')}
-                            className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100"
+                            className="p-2 text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition"
                         >
                             <ArrowLeft className="h-5 w-5" />
                         </Link>
@@ -35,9 +35,17 @@ export default function Show({ meeting, canEditNotulen }) {
                             <p className="text-xs text-gray-500 mt-0.5">{meeting.meeting_type} &bull; Satuan Pengawasan Intern PT BSP</p>
                         </div>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2.5">
                         <StatusBadge status={meeting.confidentiality} type="confidentiality" />
                         <StatusBadge status={meeting.status} type="meeting_status" />
+                        <a
+                            href={route('meetings.pdf', meeting.id)}
+                            className="inline-flex items-center rounded-lg bg-[#c5221f] px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#a51b18] transition focus:ring-2 focus:ring-red-500 focus:outline-none"
+                            title="Unduh Risalah Notulen PDF Ber-Kop Resmi PT BSP"
+                        >
+                            <FileDown className="h-4 w-4 me-1.5" />
+                            <span>Unduh PDF</span>
+                        </a>
                     </div>
                 </div>
             }
@@ -53,25 +61,49 @@ export default function Show({ meeting, canEditNotulen }) {
                             <h4 className="text-sm font-bold text-gray-900">{meeting.title}</h4>
                             <p className="text-xs text-emerald-800 font-medium mt-0.5">{meeting.meeting_type}</p>
                         </div>
-                        <div className="space-y-2 text-xs text-gray-600">
+                        <div className="space-y-3 text-xs text-gray-600">
                             <div className="flex items-center">
                                 <Calendar className="h-4 w-4 me-2 text-gray-400 shrink-0" />
                                 <span>{meeting.meeting_date} ({meeting.start_time} - {meeting.end_time || 'Selesai'} WIB)</span>
                             </div>
-                            <div className="flex items-center">
-                                <MapPin className="h-4 w-4 me-2 text-gray-400 shrink-0" />
-                                <span>{meeting.location}</span>
+                            <div className="flex items-start">
+                                {meeting.meeting_mode === 'Online' ? (
+                                    <Video className="h-4 w-4 me-2 text-blue-500 shrink-0 mt-0.5" />
+                                ) : (
+                                    <MapPin className="h-4 w-4 me-2 text-emerald-600 shrink-0 mt-0.5" />
+                                )}
+                                <div>
+                                    <div className="font-semibold text-gray-800">
+                                        Mode: {meeting.meeting_mode || 'Offline'} &bull; {meeting.platform || (meeting.meeting_mode === 'Online' ? 'Zoom' : 'Tatap Muka')}
+                                    </div>
+                                    <div className="text-gray-500 mt-0.5 break-all">
+                                        {meeting.meeting_mode === 'Online' && meeting.location?.startsWith('http') ? (
+                                            <a
+                                                href={meeting.location}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="text-blue-600 underline hover:text-blue-800 inline-flex items-center"
+                                            >
+                                                {meeting.location}
+                                                <ExternalLink className="h-3 w-3 ms-1" />
+                                            </a>
+                                        ) : (
+                                            meeting.location
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                             <div className="flex items-center">
                                 <Shield className="h-4 w-4 me-2 text-gray-400 shrink-0" />
-                                <span>Diselenggarakan oleh: {meeting.creator?.name || 'SPI PT BSP'}</span>
+                                <span>Penyelenggara: {meeting.creator?.name || 'SPI PT BSP'}</span>
                             </div>
                         </div>
+
                         {meeting.attachment_path && (
                             <div className="pt-2">
                                 <a
                                     href={route('meetings.download', meeting.id)}
-                                    className="inline-flex w-full items-center justify-center rounded-lg bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 border border-emerald-200"
+                                    className="inline-flex w-full items-center justify-center rounded-lg bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 border border-emerald-200 transition"
                                 >
                                     <Download className="h-4 w-4 me-1.5" />
                                     Unduh Lampiran Materi / Absensi
@@ -156,7 +188,7 @@ export default function Show({ meeting, canEditNotulen }) {
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="inline-flex items-center justify-center rounded-lg bg-[#194f2b] px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#123b20] disabled:opacity-75"
+                                        className="inline-flex items-center justify-center rounded-lg bg-[#194f2b] px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#123b20] disabled:opacity-75 transition"
                                     >
                                         <Save className="h-4 w-4 me-2" />
                                         {processing ? 'Menyimpan Notulen...' : 'Simpan E-Notulen'}
