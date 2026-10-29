@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
@@ -5,21 +6,49 @@ import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Lock, Mail } from 'lucide-react';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 export default function Login({ status, canResetPassword }) {
+    const turnstileRef = useRef(null);
+    const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || '3x00000000000000000000FF';
+
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
         remember: false,
+        cf_turnstile_response: '',
+        'cf-turnstile-response': '',
     });
+
+    const handleTurnstileSuccess = (token) => {
+        setData((prev) => ({
+            ...prev,
+            cf_turnstile_response: token,
+            'cf-turnstile-response': token,
+        }));
+    };
+
+    const handleTurnstileClear = () => {
+        setData((prev) => ({
+            ...prev,
+            cf_turnstile_response: '',
+            'cf-turnstile-response': '',
+        }));
+    };
 
     const submit = (e) => {
         e.preventDefault();
 
         post(route('login'), {
-            onFinish: () => reset('password'),
+            onFinish: () => {
+                reset('password');
+                turnstileRef.current?.reset();
+                handleTurnstileClear();
+            },
         });
     };
+
+    const isTurnstileVerified = !!(data.cf_turnstile_response || data['cf-turnstile-response']);
 
     return (
         <GuestLayout
@@ -102,15 +131,43 @@ export default function Login({ status, canResetPassword }) {
                     )}
                 </div>
 
+                {/* Cloudflare Turnstile Captcha Widget */}
+                <div className="my-4 flex flex-col items-center justify-center">
+                    <div className="flex justify-center items-center min-h-[65px] overflow-hidden">
+                        <Turnstile
+                            ref={turnstileRef}
+                            siteKey={siteKey}
+                            onSuccess={handleTurnstileSuccess}
+                            onError={handleTurnstileClear}
+                            onExpire={handleTurnstileClear}
+                            options={{
+                                theme: 'light',
+                                size: 'normal',
+                            }}
+                        />
+                    </div>
+                    {(errors.cf_turnstile_response || errors['cf-turnstile-response']) && (
+                        <InputError
+                            message={errors.cf_turnstile_response || errors['cf-turnstile-response']}
+                            className="mt-2 text-center text-xs"
+                        />
+                    )}
+                </div>
+
                 {/* Submit Button */}
-                <div className="pt-2">
+                <div className="pt-1">
                     <button
                         type="submit"
-                        disabled={processing}
-                        className="w-full flex items-center justify-center rounded-lg bg-[#194f2b] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#123b20] focus:outline-none focus:ring-2 focus:ring-[#194f2b] focus:ring-offset-2 disabled:opacity-75 disabled:cursor-not-allowed"
+                        disabled={processing || !isTurnstileVerified}
+                        className="w-full flex items-center justify-center rounded-lg bg-[#194f2b] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#123b20] focus:outline-none focus:ring-2 focus:ring-[#194f2b] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {processing ? 'Memproses...' : 'Masuk'}
                     </button>
+                    {!isTurnstileVerified && !processing && (
+                        <p className="mt-1.5 text-center text-[11px] text-gray-400">
+                            Selesaikan verifikasi keamanan di atas untuk masuk
+                        </p>
+                    )}
                 </div>
             </form>
         </GuestLayout>

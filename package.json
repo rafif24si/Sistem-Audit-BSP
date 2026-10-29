@@ -25,6 +25,7 @@
         "@laravel/multiplex": "^0.4.1"
     },
     "dependencies": {
+        "@marsidev/react-turnstile": "^1.6.3",
         "lucide-react": "^1.62.0"
     }
 }

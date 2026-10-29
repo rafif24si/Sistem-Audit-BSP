@@ -25,7 +25,7 @@
 ## 3. Spesifikasi Modul & Fitur Utama (MVP)
 
 ### Modul 1: Autentikasi, Kelola Pengguna & Dashboard Terintegrasi
-- **Login & Akun:** Hanya tersedia form Login (Email & Password). **TIDAK ADA fitur Register** karena sistem bersifat internal. Fitur keamanan **Captcha dimatikan sementara** selama masa *development*. Akun default untuk keperluan *testing* akan dibuat menggunakan Seeder dengan kredensial:
+- **Login & Akun: Hanya tersedia form Login (Email & Password). TIDAK ADA fitur Register karena sistem bersifat internal. Fitur keamanan diaktifkan menggunakan Cloudflare Turnstile Captcha pada halaman Login. Akun default untuk keperluan *testing* akan dibuat menggunakan Seeder dengan kredensial:
   - Super Admin: `superadmin@bsp.com` (pass: password)
   - Manager SPI: `manager@bsp.com` (pass: password)
   - Auditor: `auditor@bsp.com` (pass: password)
