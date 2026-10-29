@@ -87,27 +87,18 @@ export default function Sidebar({ isOpen, onClose }) {
                     }`}
             >
                 {/* Branding Header */}
-                <div className="flex h-16 items-center justify-between border-b border-white/10 px-6">
-                    <div className="flex items-center space-x-3">
-                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white p-0.5 shadow-md ring-2 ring-emerald-400/30">
-                            <img
-                                src="/images/logo.png"
-                                alt="Logo PT Bumi Siak Pusako"
-                                className="h-full w-full rounded-full object-cover"
-                            />
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-base font-bold tracking-tight text-white leading-tight">
-                                SPI PT BSP
-                            </span>
-                            <span className="text-[11px] text-emerald-200/80 leading-tight">
-                                Sistem Integrasi Audit
-                            </span>
-                        </div>
+                <div className="relative flex h-20 items-center justify-center border-b border-white/10 px-6">
+                    <div className="flex h-14 items-center justify-center rounded-xl bg-white px-5 py-2 shadow-sm ring-1 ring-white/20">
+                        <img
+                            src="/images/logo.png"
+                            alt="Logo PT Bumi Siak Pusako"
+                            className="h-10 w-auto object-contain"
+                        />
                     </div>
                     <button
                         onClick={onClose}
-                        className="rounded-lg p-1.5 text-emerald-200 hover:bg-white/10 lg:hidden"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-emerald-200 hover:bg-white/10 lg:hidden"
+                        aria-label="Tutup menu"
                     >
                         <X className="h-5 w-5" />
                     </button>
@@ -141,6 +132,18 @@ export default function Sidebar({ isOpen, onClose }) {
                             );
                         })}
                     </nav>
+                </div>
+
+                {/* Branding Footer */}
+                <div className="border-t border-white/10 p-4">
+                    <div className="rounded-xl bg-white/5 px-3 py-2.5 text-center ring-1 ring-white/10">
+                        <p className="text-xs font-bold tracking-wider text-white uppercase">
+                            SPI PT BSP
+                        </p>
+                        <p className="mt-0.5 text-[11px] font-medium text-emerald-200/80">
+                            Sistem Integrasi Audit
+                        </p>
+                    </div>
                 </div>
             </aside>
         </>

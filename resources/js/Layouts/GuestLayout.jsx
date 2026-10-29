@@ -10,11 +10,11 @@ export default function GuestLayout({ children, title, subtitle, logo = '/images
                 {/* Brand Header */}
                 <div className="mb-8 text-center">
                     {logo ? (
-                        <div className="inline-flex items-center justify-center p-1 rounded-full bg-white shadow-md border-2 border-emerald-600/30 ring-4 ring-emerald-100/80">
+                        <div className="inline-flex items-center justify-center px-6 py-3.5 rounded-2xl bg-white shadow-md border border-emerald-600/20 ring-4 ring-emerald-100/70">
                             <img
                                 src={logo}
                                 alt="Logo PT Bumi Siak Pusako"
-                                className="h-20 w-20 rounded-full object-cover"
+                                className="h-16 w-auto object-contain"
                             />
                         </div>
                     ) : (
