@@ -25,6 +25,7 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
         confidentiality: 'Terbatas',
         status: 'Terjadwal',
         attachment: null,
+        is_resend_email: true,
     });
 
     useEffect(() => {
@@ -43,6 +44,7 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
                 confidentiality: meeting.confidentiality || 'Terbatas',
                 status: meeting.status || 'Terjadwal',
                 attachment: null,
+                is_resend_email: true,
             });
         } else {
             reset();
@@ -56,10 +58,11 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
                 start_time: '09:00',
                 end_time: '11:00',
                 location: 'Ruang Rapat SPI Lantai 3',
-                invitees: allUsers.slice(0, 3).map((u) => u.name),
+                invitees: [],
                 confidentiality: 'Terbatas',
                 status: 'Terjadwal',
                 attachment: null,
+                is_resend_email: true,
             });
         }
     }, [meeting, isOpen]);
@@ -184,6 +187,25 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
                         <InputError message={errors.attachment} className="mt-1" />
                     </div>
 
+                    {isEdit && (
+                        <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 flex items-center justify-between">
+                            <label className="flex items-center space-x-2.5 cursor-pointer select-none">
+                                <input
+                                    type="checkbox"
+                                    checked={data.is_resend_email}
+                                    onChange={(e) => setData('is_resend_email', e.target.checked)}
+                                    className="rounded border-amber-300 text-emerald-700 shadow-sm focus:ring-emerald-600 h-4 w-4"
+                                />
+                                <span className="text-xs font-semibold text-amber-950">
+                                    Kirim ulang notifikasi email revisi ke peserta
+                                </span>
+                            </label>
+                            <span className="text-[11px] text-amber-800/80 hidden sm:inline">
+                                {data.invitees.length} Peserta Terdaftar
+                            </span>
+                        </div>
+                    )}
+
                     <div className="flex items-center justify-end space-x-3 pt-3 border-t border-gray-100">
                         <button
                             type="button"
@@ -197,7 +219,11 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
                             disabled={processing}
                             className="rounded-lg bg-[#194f2b] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#123b20] disabled:opacity-75"
                         >
-                            {processing ? 'Memproses...' : (isEdit ? 'Simpan Perubahan' : 'Jadwalkan Rapat')}
+                            {processing
+                                ? 'Memproses...'
+                                : isEdit
+                                    ? (data.is_resend_email ? 'Simpan Perubahan & Kirim Ulang' : 'Simpan Perubahan')
+                                    : 'Jadwalkan Rapat'}
                         </button>
                     </div>
                 </form>

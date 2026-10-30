@@ -56,7 +56,9 @@
   - **Fitur Tambahan Mode Pelaksanaan Rapat (`Offline` vs `Online`):**
     - Saat menjadwalkan rapat, terdapat pilihan **Mode Rapat**: `Offline` atau `Online`.
     - Jika memilih **`Offline`**: Form langsung mengarahkan pengguna untuk mengetikkan nama ruangan/tempat pelaksanaan rapat pada kolom lokasi (tanpa dropdown platform).
-    - Jika memilih **`Online`**: Form otomatis menampilkan pilihan dropdown **Platform Meeting** (`Zoom`, `Google Meet`, `Microsoft Teams`) dan kolom lokasi digunakan untuk memasukkan tautan/link meeting.
+    - Jika memilih **`Online`**: Form otomatis menampilkan pilihan dropdown **Platform Meeting** (`Zoom`, `Google Meet`, `Microsoft Teams, `Webex`eams`) dan kolom lokasi digunakan untuk memasukkan tautan/link meeting.
+  -- **Input Peserta & Notifikasi Email Otomatis:** Form pendaftaran peserta menggunakan input **Dynamic Tag Email** yang menerima alamat email secara bebas. Saat jadwal rapat berhasil disimpan, sistem akan mengirimkan email undangan resmi ke seluruh alamat email.
+  - **Pembaruan Jadwal & Kirim Ulang Email (Resend):** Jika terjadi perubahan jadwal (waktu, lokasi, atau agenda), pengguna dapat melakukan *Edit* pada rapat tersebut. Terdapat opsi "Kirim ulang notifikasi email" saat menyimpan perubahan, sehingga sistem akan mengirimkan email pemberitahuan revisi jadwal (`MeetingUpdatedMail`) kepada seluruh peserta tanpa harus membuat jadwal baru.
 - **E-Notulen (Pencatatan Hasil Rapat & Unduh PDF Resmi):**
   - Mencatat dan menyimpan poin-poin pembahasan rapat serta hasil keputusan/tindak lanjut langsung di dalam sistem (dapat diisi oleh Auditor, Manager SPI, dan Super Admin).
   - **Fitur Tambahan Unduh PDF Ber-Kop Surat:** Selain disimpan di dalam sistem, halaman E-Notulen dilengkapi tombol **"Unduh PDF"** untuk mengekspor dan mengunduh dokumen notulen resmi berformat PDF yang memuat **Kop Surat Resmi PT Bumi Siak Pusako**:

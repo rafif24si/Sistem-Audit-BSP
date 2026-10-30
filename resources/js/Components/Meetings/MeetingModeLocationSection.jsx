@@ -57,6 +57,7 @@ export default function MeetingModeLocationSection({
                             <option value="Zoom">Zoom Meeting</option>
                             <option value="Google Meet">Google Meet</option>
                             <option value="Microsoft Teams">Microsoft Teams</option>
+                            <option value="Webex">Cisco Webex</option>
                         </select>
                         <InputError message={errors.platform} className="mt-1" />
                     </div>

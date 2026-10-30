@@ -49,3 +49,13 @@ Kerjakan daftar di bawah ini secara berurutan (1 kotak per siklus Plan -> Execut
 - [x] Buat komponen modal kelola KPI (`KpiModal.jsx`) dan section kartu capaian KPI interaktif (`KpiSection.jsx`) di Dashboard utama.
 - [x] Perbarui `DashboardController` untuk memuat data indikator KPI fleksibel beserta ringkasan metrik realisasinya.
 - [x] Tambahkan seeder data awal KPI SPI realistis di `DemoDataSeeder.php`, jalankan migrasi, dan pastikan `npm run build` sukses.
+
+## Fase 10: Integrasi Notifikasi Email Undangan Rapat (Bebas/Eksternal)
+- [x] Ubah form input peserta di React (`MeetingModal.jsx` atau form terkait) menjadi *Dynamic Email Tag Input* agar pengguna bisa mengetik alamat email bebas dengan menekan spasi/enter.
+- [x] Buat Mailable class `app/Mail/MeetingInvitationMail.php` dan template Blade `resources/views/emails/meeting_invitation.blade.php` dengan desain korporat (berisi Logo PT BSP, Agenda, Waktu, Mode & Lokasi/Link, dan pesan undangan).
+- [x] Modifikasi `MeetingController@store`. Setelah data rapat tersimpan, lakukan *looping* pada array email di kolom `invitees` (JSON) dan kirimkan email undangan ke masing-masing alamat tersebut. Gunakan blok `try-catch` agar aplikasi tidak *crash* jika terjadi kegagalan pada pengiriman email.
+
+## Fase 11: Fitur Pembaruan Jadwal & Kirim Ulang Email (Resend Notification)
+- [x] Modifikasi form edit di `MeetingModal.jsx` dengan mengubah label tombol menjadi "Simpan Perubahan & Kirim Ulang", serta tambahkan *checkbox* opsional `is_resend_email` (default: true) agar Manager bisa memilih apakah peserta perlu dinotifikasi ulang atau tidak.
+- [x] Buat Mailable class baru `app/Mail/MeetingUpdatedMail.php` dan template Blade `resources/views/emails/meeting_updated.blade.php` khusus untuk menginformasikan bahwa ada **Perubahan/Revisi Jadwal Rapat** (tampilkan highlight perubahan jika memungkinkan, atau sekadar detail jadwal terbaru).
+- [x] Modifikasi `MeetingController@update`. Tangkap nilai `is_resend_email`. Jika `true`, lakukan *looping* pada kolom `invitees` yang baru dan kirimkan `MeetingUpdatedMail` ke semua peserta dengan perlindungan `try-catch`.

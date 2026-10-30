@@ -21,12 +21,13 @@ class MeetingRequest extends FormRequest
                 Rule::in(['Entry Meeting', 'Exit Meeting', 'Rapat Internal SPI', 'Rapat Pimpinan']),
             ],
             'meeting_mode' => ['required', Rule::in(['Offline', 'Online'])],
-            'platform' => ['nullable', Rule::in(['Tatap Muka', 'Zoom', 'Google Meet', 'Microsoft Teams'])],
+            'platform' => ['nullable', Rule::in(['Tatap Muka', 'Zoom', 'Google Meet', 'Microsoft Teams', 'Webex'])],
             'meeting_date' => ['required', 'date'],
             'start_time' => ['required'],
             'end_time' => ['nullable'],
             'location' => ['required', 'string', 'max:255'],
             'invitees' => ['required', 'array', 'min:1'],
+            'invitees.*' => ['required', 'email'],
             'confidentiality' => ['required', Rule::in(['Biasa', 'Terbatas', 'Rahasia'])],
             'status' => ['required', Rule::in(['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'])],
             'attachment' => [
@@ -35,6 +36,7 @@ class MeetingRequest extends FormRequest
                 'mimes:pdf,doc,docx,xls,xlsx,jpg,png',
                 'max:10240',
             ],
+            'is_resend_email' => ['nullable', 'boolean'],
         ];
     }
 
@@ -47,6 +49,7 @@ class MeetingRequest extends FormRequest
             'start_time.required' => 'Waktu mulai rapat wajib diisi.',
             'location.required' => 'Ruangan atau tautan online rapat wajib diisi.',
             'invitees.required' => 'Daftar undangan / peserta rapat minimal 1 orang.',
+            'invitees.*.email' => 'Setiap alamat peserta harus berupa format email yang valid.',
             'attachment.mimes' => 'Format file materi harus berupa: pdf, doc, docx, xls, xlsx, jpg, atau png.',
             'attachment.max' => 'Ukuran file lampiran maksimal 10MB.',
         ];

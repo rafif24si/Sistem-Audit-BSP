@@ -4,12 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\MeetingMinutesRequest;
 use App\Http\Requests\MeetingRequest;
+use App\Mail\MeetingInvitationMail;
+use App\Mail\MeetingUpdatedMail;
 use App\Models\Meeting;
 use App\Models\User;
 use App\Services\ActivityLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -130,13 +134,29 @@ class MeetingController extends Controller
         $data['created_by'] = Auth::id();
         $meeting = Meeting::create($data);
 
+        // Distribusi email undangan otomatis ke setiap peserta rapat
+        $inviteeEmails = is_array($meeting->invitees) ? $meeting->invitees : [];
+        $sentCount = 0;
+
+        foreach ($inviteeEmails as $email) {
+            $email = trim((string) $email);
+            if (! empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                try {
+                    Mail::to($email)->send(new MeetingInvitationMail($meeting));
+                    $sentCount++;
+                } catch (\Throwable $e) {
+                    Log::warning("Gagal mengirim notifikasi email undangan rapat #{$meeting->id} ke {$email}: " . $e->getMessage());
+                }
+            }
+        }
+
         ActivityLogger::log(
             'CREATE_MEETING',
-            "Menjadwalkan rapat: {$meeting->title} ({$meeting->meeting_type}) pada {$meeting->meeting_date}"
+            "Menjadwalkan rapat: {$meeting->title} ({$meeting->meeting_type}) pada {$meeting->meeting_date} (Email terkirim: {$sentCount})"
         );
 
         return redirect()->route('meetings.index')
-            ->with('success', "Jadwal rapat '{$meeting->title}' berhasil diterbitkan.");
+            ->with('success', "Jadwal rapat '{$meeting->title}' berhasil diterbitkan dan notifikasi email telah dikirim.");
     }
 
     /**
@@ -149,6 +169,8 @@ class MeetingController extends Controller
         }
 
         $data = $request->validated();
+        $isResendEmail = $request->boolean('is_resend_email');
+        unset($data['is_resend_email']);
 
         if (($data['meeting_mode'] ?? 'Offline') === 'Offline') {
             $data['platform'] = 'Tatap Muka';
@@ -168,13 +190,33 @@ class MeetingController extends Controller
 
         $meeting->update($data);
 
+        // Kirim ulang notifikasi email revisi jika opsi dicentang
+        $sentCount = 0;
+        if ($isResendEmail) {
+            $inviteeEmails = is_array($meeting->invitees) ? $meeting->invitees : [];
+            foreach ($inviteeEmails as $email) {
+                $email = trim((string) $email);
+                if (! empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    try {
+                        Mail::to($email)->send(new MeetingUpdatedMail($meeting));
+                        $sentCount++;
+                    } catch (\Throwable $e) {
+                        Log::warning("Gagal mengirim email revisi jadwal rapat #{$meeting->id} ke {$email}: " . $e->getMessage());
+                    }
+                }
+            }
+        }
+
         ActivityLogger::log(
             'UPDATE_MEETING',
-            "Memperbarui agenda rapat: {$meeting->title}"
+            "Memperbarui agenda rapat: {$meeting->title}" . ($sentCount > 0 ? " (Email revisi terkirim: {$sentCount})" : '')
         );
 
+        $successMessage = "Agenda rapat '{$meeting->title}' berhasil diperbarui" .
+            ($sentCount > 0 ? " dan email pemberitahuan revisi telah dikirim ke {$sentCount} peserta." : ".");
+
         return redirect()->back()
-            ->with('success', "Agenda rapat '{$meeting->title}' berhasil diperbarui.");
+            ->with('success', $successMessage);
     }
 
     /**
