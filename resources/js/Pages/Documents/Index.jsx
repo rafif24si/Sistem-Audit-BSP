@@ -140,12 +140,12 @@ export default function Index({ documents, departments, filters }) {
                     <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
                         <thead className="bg-slate-50 text-xs uppercase font-semibold text-gray-600">
                             <tr>
+                                <th className="px-6 py-3.5 text-center w-28">Aksi</th>
                                 <th className="px-6 py-3.5">Nomor & Versi</th>
                                 <th className="px-6 py-3.5">Judul Dokumen</th>
                                 <th className="px-6 py-3.5">Departemen & Tipe</th>
                                 <th className="px-6 py-3.5">Kerahasiaan</th>
                                 <th className="px-6 py-3.5">Status</th>
-                                <th className="px-6 py-3.5 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 bg-white">
@@ -159,26 +159,6 @@ export default function Index({ documents, departments, filters }) {
                             ) : (
                                 documents.data.map((doc) => (
                                     <tr key={doc.id} className="hover:bg-slate-50/80 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap font-mono font-medium text-emerald-950">
-                                            {doc.document_number}
-                                            <span className="ms-2 inline-block rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-sans text-gray-600">
-                                                v{doc.version}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="font-semibold text-gray-900">{doc.title}</div>
-                                            <div className="text-xs text-gray-400 mt-0.5">TMT: {doc.effective_date}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="font-semibold text-gray-700">{doc.department?.code}</span>
-                                            <span className="ms-1.5 text-xs text-gray-500">({doc.document_type})</span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <StatusBadge status={doc.confidentiality} type="confidentiality" />
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <StatusBadge status={doc.control_status} type="control_status" />
-                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                             <div className="inline-flex items-center space-x-2">
                                                 <a
@@ -207,6 +187,26 @@ export default function Index({ documents, departments, filters }) {
                                                     </>
                                                 )}
                                             </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap font-mono font-medium text-emerald-950">
+                                            {doc.document_number}
+                                            <span className="ms-2 inline-block rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-sans text-gray-600">
+                                                v{doc.version}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="font-semibold text-gray-900">{doc.title}</div>
+                                            <div className="text-xs text-gray-400 mt-0.5">TMT: {doc.effective_date}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="font-semibold text-gray-700">{doc.department?.code}</span>
+                                            <span className="ms-1.5 text-xs text-gray-500">({doc.document_type})</span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <StatusBadge status={doc.confidentiality} type="confidentiality" />
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <StatusBadge status={doc.control_status} type="control_status" />
                                         </td>
                                     </tr>
                                 ))

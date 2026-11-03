@@ -57,10 +57,15 @@ Route::middleware('auth')->group(function () {
     Route::put('/kpis/{kpi}', [\App\Http\Controllers\KpiController::class, 'update'])->name('kpis.update');
     Route::delete('/kpis/{kpi}', [\App\Http\Controllers\KpiController::class, 'destroy'])->name('kpis.destroy');
     
-    // Khusus Super Admin (Kelola Pengguna & Audit Trail)
+    // Khusus Super Admin (Kelola Pengguna, Data Master & Audit Trail)
     Route::middleware('role:super_admin')->group(function () {
         Route::resource('users', \App\Http\Controllers\UserController::class)->except(['create', 'show', 'edit']);
         Route::get('/activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('activity-logs.index');
+
+        // Manajemen Data Master
+        Route::resource('departments', \App\Http\Controllers\DepartmentController::class)->except(['create', 'show', 'edit']);
+        Route::resource('meeting-types', \App\Http\Controllers\MeetingTypeController::class)->except(['create', 'show', 'edit']);
+        Route::resource('kpi-categories', \App\Http\Controllers\KpiCategoryController::class)->except(['create', 'show', 'edit']);
     });
 });
 

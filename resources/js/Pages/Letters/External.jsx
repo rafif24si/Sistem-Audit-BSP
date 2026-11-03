@@ -114,12 +114,12 @@ export default function External({ letters, departments = [], filters }) {
                     <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
                         <thead className="bg-slate-50 text-xs uppercase font-semibold text-gray-600">
                             <tr>
+                                <th className="px-6 py-3.5 text-center w-28">Aksi</th>
                                 <th className="px-6 py-3.5">Nomor & Arah</th>
                                 <th className="px-6 py-3.5">Perihal & Dept</th>
                                 <th className="px-6 py-3.5">Status Follow-Up</th>
                                 <th className="px-6 py-3.5">Approval</th>
                                 <th className="px-6 py-3.5">Catatan Tindak Lanjut</th>
-                                <th className="px-6 py-3.5 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 bg-white">
@@ -133,39 +133,6 @@ export default function External({ letters, departments = [], filters }) {
                             ) : (
                                 letters.data.map((l) => (
                                     <tr key={l.id} className="hover:bg-slate-50/80 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="font-mono font-medium text-emerald-950 text-xs">{l.letter_number}</div>
-                                            <div className="flex items-center mt-1 text-[11px] text-gray-500">
-                                                {l.direction === 'incoming' ? (
-                                                    <span className="inline-flex items-center text-blue-600"><ArrowDownLeft className="h-3 w-3 me-0.5" /> Masuk</span>
-                                                ) : (
-                                                    <span className="inline-flex items-center text-emerald-600"><ArrowUpRight className="h-3 w-3 me-0.5" /> Keluar</span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="font-semibold text-gray-900 max-w-xs">{l.subject}</div>
-                                            <div className="text-xs text-gray-500 mt-0.5">
-                                                {l.sender} &rarr; {l.recipient}
-                                                {l.recipient_department && ` (${l.recipient_department.code})`}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <StatusBadge status={l.followup_status} type="followup" />
-                                            {l.followup_due_date && (
-                                                <div className="text-[11px] text-red-600 font-medium mt-1">Batas: {l.followup_due_date}</div>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <StatusBadge status={l.approval_status} type="approval_status" />
-                                        </td>
-                                        <td className="px-6 py-4 text-xs text-gray-600 max-w-xs">
-                                            {l.followup_notes ? (
-                                                <span className="line-clamp-2">{l.followup_notes}</span>
-                                            ) : (
-                                                <span className="text-gray-400 italic">Belum ada catatan</span>
-                                            )}
-                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                             <div className="inline-flex items-center space-x-1.5">
                                                 {canApprove && l.direction === 'outgoing' && l.approval_status === 'pending_approval' && (
@@ -217,6 +184,39 @@ export default function External({ letters, departments = [], filters }) {
                                                 )}
                                             </div>
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="font-mono font-medium text-emerald-950 text-xs">{l.letter_number}</div>
+                                            <div className="flex items-center mt-1 text-[11px] text-gray-500">
+                                                {l.direction === 'incoming' ? (
+                                                    <span className="inline-flex items-center text-blue-600"><ArrowDownLeft className="h-3 w-3 me-0.5" /> Masuk</span>
+                                                ) : (
+                                                    <span className="inline-flex items-center text-emerald-600"><ArrowUpRight className="h-3 w-3 me-0.5" /> Keluar</span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="font-semibold text-gray-900 max-w-xs">{l.subject}</div>
+                                            <div className="text-xs text-gray-500 mt-0.5">
+                                                {l.sender} &rarr; {l.recipient}
+                                                {l.recipient_department && ` (${l.recipient_department.code})`}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <StatusBadge status={l.followup_status} type="followup" />
+                                            {l.followup_due_date && (
+                                                <div className="text-[11px] text-red-600 font-medium mt-1">Batas: {l.followup_due_date}</div>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <StatusBadge status={l.approval_status} type="approval_status" />
+                                        </td>
+                                        <td className="px-6 py-4 text-xs text-gray-600 max-w-xs">
+                                            {l.followup_notes ? (
+                                                <span className="line-clamp-2">{l.followup_notes}</span>
+                                            ) : (
+                                                <span className="text-gray-400 italic">Belum ada catatan</span>
+                                            )}
+                                        </td>
                                     </tr>
                                 ))
                             )}
@@ -227,25 +227,9 @@ export default function External({ letters, departments = [], filters }) {
             </div>
 
             {/* Modals */}
-            <LetterModal
-                isOpen={isLetterModalOpen}
-                onClose={() => setIsLetterModalOpen(false)}
-                letter={selectedLetter}
-                defaultScope="external"
-                departments={departments}
-            />
-
-            <FollowUpModal
-                isOpen={isFollowUpModalOpen}
-                onClose={() => setIsFollowUpModalOpen(false)}
-                letter={selectedLetter}
-            />
-
-            <ApprovalModal
-                isOpen={isApprovalOpen}
-                onClose={() => setIsApprovalOpen(false)}
-                letter={selectedLetter}
-            />
+            <LetterModal isOpen={isLetterModalOpen} onClose={() => setIsLetterModalOpen(false)} letter={selectedLetter} defaultScope="external" departments={departments} />
+            <FollowUpModal isOpen={isFollowUpModalOpen} onClose={() => setIsFollowUpModalOpen(false)} letter={selectedLetter} />
+            <ApprovalModal isOpen={isApprovalOpen} onClose={() => setIsApprovalOpen(false)} letter={selectedLetter} />
         </AuthenticatedLayout>
     );
 }

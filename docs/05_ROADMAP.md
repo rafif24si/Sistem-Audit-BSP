@@ -59,3 +59,16 @@ Kerjakan daftar di bawah ini secara berurutan (1 kotak per siklus Plan -> Execut
 - [x] Modifikasi form edit di `MeetingModal.jsx` dengan mengubah label tombol menjadi "Simpan Perubahan & Kirim Ulang", serta tambahkan *checkbox* opsional `is_resend_email` (default: true) agar Manager bisa memilih apakah peserta perlu dinotifikasi ulang atau tidak.
 - [x] Buat Mailable class baru `app/Mail/MeetingUpdatedMail.php` dan template Blade `resources/views/emails/meeting_updated.blade.php` khusus untuk menginformasikan bahwa ada **Perubahan/Revisi Jadwal Rapat** (tampilkan highlight perubahan jika memungkinkan, atau sekadar detail jadwal terbaru).
 - [x] Modifikasi `MeetingController@update`. Tangkap nilai `is_resend_email`. Jika `true`, lakukan *looping* pada kolom `invitees` yang baru dan kirimkan `MeetingUpdatedMail` ke semua peserta dengan perlindungan `try-catch`.
+
+## Fase 12: Penyempurnaan Hak Akses, Data Master, Log Aktivitas, dan UI
+- [x] Implementasikan Manajemen Data Master eksklusif untuk Super Admin. Buat entitas/tabel (beserta Migration, Model, dan Controller) untuk:
+  - Master Departemen
+  - Master Jenis Rapat
+  - Master Kategori KPI
+- [x] Hubungkan form pembuatan jadwal rapat, pengelolaan KPI, dan user management dengan Data Master yang telah dibuat agar opsi dropdown menjadi dinamis.
+- [x] Modifikasi form Dokumen Master SOP (`DocumentModal.jsx`) untuk menghapus input versi manual. Buat logika di Controller (`MasterDocumentController@store`) untuk men-*generate* dan menetapkan versi dokumen secara otomatis (misal: dimulai dari `01` dan bertambah pada setiap revisi).
+- [x] Tambahkan validasi pada `LetterRequest` atau `LetterController` untuk mewajibkan lampiran file (`file_path` required) saat membuat Surat Internal dan Eksternal baru.
+- [x] Pastikan Super Admin dapat melakukan CRUD pada seluruh entitas di sistem tanpa batasan kepemilikan departemen, melampaui proteksi hak akses *role* lainnya.
+- [x] Modifikasi komponen tabel (atau view terkait) di antarmuka pengguna agar kolom yang berisi tombol aksi (*Edit*, *Delete*, *Download*) dipindahkan ke sisi paling kiri (sebelum kolom nomor/judul).
+- [x] Perkuat pencatatan log aktivitas. Pastikan setiap tindakan pengunggahan atau perubahan dokumen dan surat tercatat dengan detail di tabel `activity_logs`.
+- [x] Modifikasi komponen `Sidebar.jsx`. Kelompokkan menu "Kelola Pengguna", "Log Aktivitas", dan menu "Data Master" (Departemen, Jenis Rapat, Kategori KPI) ke dalam satu menu *Dropdown/Collapsible* (misal bernama "Pengaturan Sistem" atau "Data Master"). Pastikan dropdown ini hanya di-render untuk role `super_admin`.

@@ -95,7 +95,34 @@ class MasterDocumentController extends Controller
         }
 
         $data = $request->validated();
+        if (empty($data['version'])) {
+            $data['version'] = $document->version;
+        }
         $file = $request->file('file');
+
+        // Otomatisasi Penomoran Versi: Mulai dari 01, naik berurutan jika nomor dokumen sama diinput ulang
+        $baseNumber = $data['document_number'];
+        $existingDocuments = MasterDocument::withTrashed()
+            ->where(function ($q) use ($baseNumber) {
+                $q->where('document_number', $baseNumber)
+                  ->orWhere('document_number', 'like', "{$baseNumber}-v%");
+            })
+            ->get();
+
+        if ($existingDocuments->isEmpty()) {
+            $version = '01';
+        } else {
+            $maxVersion = 0;
+            foreach ($existingDocuments as $doc) {
+                $verNum = (int) $doc->version;
+                if ($verNum > $maxVersion) {
+                    $maxVersion = $verNum;
+                }
+            }
+            $nextVersion = $maxVersion > 0 ? $maxVersion + 1 : count($existingDocuments) + 1;
+            $version = sprintf('%02d', $nextVersion);
+        }
+        $data['version'] = $version;
 
         // Clean document code for filename
         $safeCode = Str::slug($data['document_number']);
@@ -109,7 +136,7 @@ class MasterDocumentController extends Controller
         $data['file_path'] = $path;
         $data['created_by'] = Auth::id();
 
-        // Auto Status Control: If new document is TERKENDALI and an existing document shares the same document_number, archive older version
+        // Auto Status Control: Jika dokumen baru TERKENDALI dan nomor dokumen sama, arsipkan versi lama
         if ($data['control_status'] === 'TERKENDALI') {
             $existing = MasterDocument::where('document_number', $data['document_number'])->first();
             if ($existing) {
@@ -135,7 +162,7 @@ class MasterDocumentController extends Controller
         );
 
         return redirect()->route('documents.index')
-            ->with('success', "Dokumen master {$document->document_number} berhasil disimpan.");
+            ->with('success', "Dokumen master {$document->document_number} versi {$document->version} berhasil disimpan.");
     }
 
     /**
@@ -148,6 +175,9 @@ class MasterDocumentController extends Controller
         }
 
         $data = $request->validated();
+        if (empty($data['version'])) {
+            $data['version'] = $document->version;
+        }
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');

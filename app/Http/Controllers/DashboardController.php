@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\Kpi;
+use App\Models\KpiCategory;
 use App\Models\Letter;
 use App\Models\MasterDocument;
 use App\Models\Meeting;
@@ -53,6 +54,8 @@ class DashboardController extends Controller
             ->latest('updated_at')
             ->get();
 
+        $kpiCategories = KpiCategory::orderBy('name')->get(['id', 'name']);
+
         return Inertia::render('Dashboard', [
             'stats' => [
                 'controlled_documents' => $totalControlledDocuments,
@@ -64,6 +67,7 @@ class DashboardController extends Controller
             'pendingFollowups' => $pendingFollowups,
             'recentActivities' => $recentActivities,
             'kpis' => $kpis,
+            'kpiCategories' => $kpiCategories,
         ]);
     }
 }

@@ -125,12 +125,12 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
                     <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
                         <thead className="bg-slate-50 text-xs uppercase font-semibold text-gray-600">
                             <tr>
+                                <th className="px-6 py-3.5 text-center w-28">Aksi</th>
                                 <th className="px-6 py-3.5">Surat Terkait</th>
                                 <th className="px-6 py-3.5">Instruksi & Catatan</th>
                                 <th className="px-6 py-3.5">Pemberi & Penerima</th>
                                 <th className="px-6 py-3.5">Derajat</th>
                                 <th className="px-6 py-3.5">Status</th>
-                                <th className="px-6 py-3.5 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 bg-white">
@@ -148,30 +148,6 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
 
                                     return (
                                         <tr key={disp.id} className="hover:bg-slate-50/80 transition-colors">
-                                            <td className="px-6 py-4">
-                                                <div className="font-mono font-medium text-xs text-emerald-950">{disp.letter?.letter_number}</div>
-                                                <div className="font-semibold text-gray-900 text-xs max-w-xs mt-0.5 line-clamp-2">{disp.letter?.subject}</div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="font-bold text-emerald-900 text-xs">{disp.instruction}</div>
-                                                <p className="text-xs text-gray-600 mt-1 max-w-xs line-clamp-2">{disp.notes || 'Tanpa catatan tambahan'}</p>
-                                                {disp.completion_notes && (
-                                                    <div className="mt-1.5 rounded bg-emerald-50 p-1.5 text-[11px] text-emerald-800 border border-emerald-200">
-                                                        <span className="font-semibold">Laporan:</span> {disp.completion_notes}
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-xs">
-                                                <div><span className="text-gray-400">Dari:</span> <span className="font-medium text-gray-800">{disp.sender?.name}</span></div>
-                                                <div className="mt-1"><span className="text-gray-400">Kepada:</span> <span className="font-medium text-emerald-800">{disp.recipient?.name}</span></div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <StatusBadge status={disp.urgency} type="urgency" />
-                                                <div className="text-xs text-gray-600 mt-1">Tenggat: <span className="font-semibold">{disp.due_date}</span></div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <StatusBadge status={disp.status} type="disposition_status" />
-                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-center">
                                                 <div className="inline-flex items-center space-x-1.5">
                                                     {(isRecipient || isSender) && (
@@ -203,6 +179,30 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
                                                         </>
                                                     )}
                                                 </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="font-mono font-medium text-xs text-emerald-950">{disp.letter?.letter_number}</div>
+                                                <div className="font-semibold text-gray-900 text-xs max-w-xs mt-0.5 line-clamp-2">{disp.letter?.subject}</div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="font-bold text-emerald-900 text-xs">{disp.instruction}</div>
+                                                <p className="text-xs text-gray-600 mt-1 max-w-xs line-clamp-2">{disp.notes || 'Tanpa catatan tambahan'}</p>
+                                                {disp.completion_notes && (
+                                                    <div className="mt-1.5 rounded bg-emerald-50 p-1.5 text-[11px] text-emerald-800 border border-emerald-200">
+                                                        <span className="font-semibold">Laporan:</span> {disp.completion_notes}
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-xs">
+                                                <div><span className="text-gray-400">Dari:</span> <span className="font-medium text-gray-800">{disp.sender?.name}</span></div>
+                                                <div className="mt-1"><span className="text-gray-400">Kepada:</span> <span className="font-medium text-emerald-800">{disp.recipient?.name}</span></div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <StatusBadge status={disp.urgency} type="urgency" />
+                                                <div className="text-xs text-gray-600 mt-1">Tenggat: <span className="font-semibold">{disp.due_date}</span></div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <StatusBadge status={disp.status} type="disposition_status" />
                                             </td>
                                         </tr>
                                     );

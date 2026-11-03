@@ -7,6 +7,7 @@ use App\Http\Requests\MeetingRequest;
 use App\Mail\MeetingInvitationMail;
 use App\Mail\MeetingUpdatedMail;
 use App\Models\Meeting;
+use App\Models\MeetingType;
 use App\Models\User;
 use App\Services\ActivityLogger;
 use Illuminate\Http\RedirectResponse;
@@ -67,9 +68,12 @@ class MeetingController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'email', 'role', 'department_id']);
 
+        $meetingTypes = MeetingType::orderBy('name')->get(['id', 'name']);
+
         return Inertia::render('Meetings/Index', [
             'meetings' => $meetings,
             'allUsers' => $allUsers,
+            'meetingTypes' => $meetingTypes,
             'filters' => [
                 'search' => $search,
                 'status' => $status,

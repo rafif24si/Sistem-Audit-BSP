@@ -6,7 +6,7 @@ import Pagination from '@/Components/Pagination';
 import MeetingModal from '@/Components/Meetings/MeetingModal';
 import { Plus, Search, Calendar, MapPin, Video, Users, FileText, Download, Edit, Trash2 } from 'lucide-react';
 
-export default function Index({ meetings, allUsers, filters }) {
+export default function Index({ meetings, allUsers, meetingTypes = [], filters }) {
     const { user } = usePage().props.auth;
     const canManage = ['super_admin', 'manager_spi'].includes(user?.role);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -89,10 +89,18 @@ export default function Index({ meetings, allUsers, filters }) {
                             className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
                         >
                             <option value="">Semua Jenis Rapat</option>
-                            <option value="Entry Meeting">Entry Meeting</option>
-                            <option value="Exit Meeting">Exit Meeting</option>
-                            <option value="Rapat Internal SPI">Rapat Internal SPI</option>
-                            <option value="Rapat Pimpinan">Rapat Pimpinan</option>
+                            {meetingTypes && meetingTypes.length > 0 ? (
+                                meetingTypes.map((mt) => (
+                                    <option key={mt.id || mt.name} value={mt.name}>{mt.name}</option>
+                                ))
+                            ) : (
+                                <>
+                                    <option value="Entry Meeting">Entry Meeting</option>
+                                    <option value="Exit Meeting">Exit Meeting</option>
+                                    <option value="Rapat Internal SPI">Rapat Internal SPI</option>
+                                    <option value="Rapat Pimpinan">Rapat Pimpinan</option>
+                                </>
+                            )}
                         </select>
                     </div>
                 </div>
@@ -104,12 +112,12 @@ export default function Index({ meetings, allUsers, filters }) {
                     <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
                         <thead className="bg-slate-50 text-xs uppercase font-semibold text-gray-600">
                             <tr>
+                                <th className="px-6 py-3.5 text-center w-36">Aksi & Notulen</th>
                                 <th className="px-6 py-3.5">Agenda & Jenis Rapat</th>
                                 <th className="px-6 py-3.5">Tanggal & Waktu</th>
                                 <th className="px-6 py-3.5">Lokasi & Undangan</th>
                                 <th className="px-6 py-3.5">Kerahasiaan</th>
                                 <th className="px-6 py-3.5">Status</th>
-                                <th className="px-6 py-3.5 text-center">Aksi & Notulen</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 bg-white">
@@ -125,6 +133,45 @@ export default function Index({ meetings, allUsers, filters }) {
                                     const inviteesList = Array.isArray(m.invitees) ? m.invitees : [];
                                     return (
                                         <tr key={m.id} className="hover:bg-slate-50/80 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                                                <div className="inline-flex items-center space-x-1.5">
+                                                    <Link
+                                                        href={route('meetings.show', m.id)}
+                                                        className="inline-flex items-center px-2.5 py-1 text-xs font-semibold text-white bg-emerald-700 rounded-lg hover:bg-emerald-800 shadow-2xs"
+                                                        title="Buka / Catat E-Notulen"
+                                                    >
+                                                        <FileText className="h-3.5 w-3.5 me-1" />
+                                                        E-Notulen
+                                                    </Link>
+                                                    {m.attachment_path && (
+                                                        <a
+                                                            href={route('meetings.download', m.id)}
+                                                            className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
+                                                            title="Unduh Berkas Lampiran"
+                                                        >
+                                                            <Download className="h-4 w-4" />
+                                                        </a>
+                                                    )}
+                                                    {canManage && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => { setSelectedMeeting(m); setIsModalOpen(true); }}
+                                                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
+                                                                title="Ubah Rapat"
+                                                            >
+                                                                <Edit className="h-4 w-4" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDelete(m)}
+                                                                className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
+                                                                title="Hapus Rapat"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <div className="font-bold text-gray-900 text-sm max-w-xs">{m.title}</div>
                                                 <span className="inline-block mt-1 text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
@@ -169,45 +216,6 @@ export default function Index({ meetings, allUsers, filters }) {
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <StatusBadge status={m.status} type="meeting_status" />
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                <div className="inline-flex items-center space-x-1.5">
-                                                    <Link
-                                                        href={route('meetings.show', m.id)}
-                                                        className="inline-flex items-center px-2.5 py-1 text-xs font-semibold text-white bg-emerald-700 rounded-lg hover:bg-emerald-800 shadow-2xs"
-                                                        title="Buka / Catat E-Notulen"
-                                                    >
-                                                        <FileText className="h-3.5 w-3.5 me-1" />
-                                                        E-Notulen
-                                                    </Link>
-                                                    {m.attachment_path && (
-                                                        <a
-                                                            href={route('meetings.download', m.id)}
-                                                            className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg"
-                                                            title="Unduh Berkas Lampiran"
-                                                        >
-                                                            <Download className="h-4 w-4" />
-                                                        </a>
-                                                    )}
-                                                    {canManage && (
-                                                        <>
-                                                            <button
-                                                                onClick={() => { setSelectedMeeting(m); setIsModalOpen(true); }}
-                                                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
-                                                                title="Ubah Rapat"
-                                                            >
-                                                                <Edit className="h-4 w-4" />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleDelete(m)}
-                                                                className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
-                                                                title="Hapus Rapat"
-                                                            >
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </td>
                                         </tr>
                                     );
                                 })
@@ -224,6 +232,7 @@ export default function Index({ meetings, allUsers, filters }) {
                 onClose={() => setIsModalOpen(false)}
                 meeting={selectedMeeting}
                 allUsers={allUsers}
+                meetingTypes={meetingTypes}
             />
         </AuthenticatedLayout>
     );

@@ -5,7 +5,7 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import { X, Target } from 'lucide-react';
 
-export default function KpiModal({ isOpen, onClose, kpi = null }) {
+export default function KpiModal({ isOpen, onClose, kpi = null, kpiCategories = [] }) {
     const isEdit = !!kpi;
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
@@ -103,10 +103,18 @@ export default function KpiModal({ isOpen, onClose, kpi = null }) {
                                 onChange={(e) => setData('category', e.target.value)}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
                             >
-                                <option value="Operasional Audit">Operasional Audit</option>
-                                <option value="Kepatuhan & Tata Kelola">Kepatuhan & Tata Kelola</option>
-                                <option value="Administrasi & Pelaporan">Administrasi & Pelaporan</option>
-                                <option value="Pengembangan SDM">Pengembangan SDM</option>
+                                {kpiCategories && kpiCategories.length > 0 ? (
+                                    kpiCategories.map((c) => (
+                                        <option key={c.id || c.name} value={c.name}>{c.name}</option>
+                                    ))
+                                ) : (
+                                    <>
+                                        <option value="Operasional Audit">Operasional Audit</option>
+                                        <option value="Kepatuhan & Tata Kelola">Kepatuhan & Tata Kelola</option>
+                                        <option value="Administrasi & Pelaporan">Administrasi & Pelaporan</option>
+                                        <option value="Pengembangan SDM">Pengembangan SDM</option>
+                                    </>
+                                )}
                             </select>
                             <InputError message={errors.category} className="mt-1" />
                         </div>

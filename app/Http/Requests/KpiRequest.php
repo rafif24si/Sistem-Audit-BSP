@@ -16,15 +16,7 @@ class KpiRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'category' => [
-                'required',
-                Rule::in([
-                    'Operasional Audit',
-                    'Kepatuhan & Tata Kelola',
-                    'Administrasi & Pelaporan',
-                    'Pengembangan SDM',
-                ]),
-            ],
+            'category' => ['required', 'string', 'max:255'],
             'target_value' => ['required', 'numeric', 'min:0'],
             'realization_value' => ['required', 'numeric', 'min:0'],
             'unit' => ['required', 'string', 'max:50'],

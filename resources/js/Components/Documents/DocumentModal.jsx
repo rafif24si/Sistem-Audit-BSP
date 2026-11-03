@@ -14,7 +14,6 @@ export default function DocumentModal({ isOpen, onClose, document = null, depart
         title: '',
         department_id: departments[0]?.id || '',
         document_type: 'SOP',
-        version: '00',
         effective_date: new Date().toISOString().split('T')[0],
         expired_date: '',
         control_status: 'TERKENDALI',
@@ -30,7 +29,6 @@ export default function DocumentModal({ isOpen, onClose, document = null, depart
                 title: document.title || '',
                 department_id: document.department_id || departments[0]?.id || '',
                 document_type: document.document_type || 'SOP',
-                version: document.version || '00',
                 effective_date: document.effective_date ? document.effective_date.substring(0, 10) : '',
                 expired_date: document.expired_date ? document.expired_date.substring(0, 10) : '',
                 control_status: document.control_status || 'TERKENDALI',
@@ -39,7 +37,6 @@ export default function DocumentModal({ isOpen, onClose, document = null, depart
             });
         } else {
             reset();
-            setData('_method', 'POST');
         }
     }, [document, isOpen]);
 
@@ -158,19 +155,7 @@ export default function DocumentModal({ isOpen, onClose, document = null, depart
                         <InputError message={errors.title} className="mt-1" />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <InputLabel htmlFor="version" value="Versi Revisi" />
-                            <TextInput
-                                id="version"
-                                value={data.version}
-                                placeholder="00"
-                                className="mt-1 block w-full text-center"
-                                onChange={(e) => setData('version', e.target.value)}
-                                required
-                            />
-                            <InputError message={errors.version} className="mt-1" />
-                        </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <InputLabel htmlFor="control_status" value="Status Dokumen" />
                             <select

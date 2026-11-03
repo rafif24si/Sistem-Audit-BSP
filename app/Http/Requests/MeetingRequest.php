@@ -16,10 +16,7 @@ class MeetingRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'meeting_type' => [
-                'required',
-                Rule::in(['Entry Meeting', 'Exit Meeting', 'Rapat Internal SPI', 'Rapat Pimpinan']),
-            ],
+            'meeting_type' => ['required', 'string', 'max:255'],
             'meeting_mode' => ['required', Rule::in(['Offline', 'Online'])],
             'platform' => ['nullable', Rule::in(['Tatap Muka', 'Zoom', 'Google Meet', 'Microsoft Teams', 'Webex'])],
             'meeting_date' => ['required', 'date'],

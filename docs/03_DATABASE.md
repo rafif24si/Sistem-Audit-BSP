@@ -73,7 +73,7 @@
 ## 6. Tabel `meetings` (Manajemen Rapat & E-Notulen)
 - `id`: bigint unsigned, PK
 - `title`: varchar(255) (Perihal / Agenda Rapat)
-- `meeting_type`: enum('Entry Meeting', 'Exit Meeting', 'Rapat Internal SPI', 'Rapat Pimpinan')
+- `meeting_type`: varchar(255), default: 'Entry Meeting' (Dinamis mengambil dari tabel master `meeting_types`, seperti 'Entry Meeting', 'Exit Meeting', 'Rapat Pre-Job / Safety Briefing', dll.)
 - `meeting_mode`: enum('Offline', 'Online'), default: 'Offline' (Pilihan pelaksanaan rapat Offline atau Online)
 - `platform`: enum('Tatap Muka', 'Zoom', 'Google Meet', 'Microsoft Teams'), nullable, default: 'Tatap Muka' (Jika `meeting_mode` = 'Online', pilih `Zoom`, `Google Meet`, atau `Microsoft Teams`; jika `Offline`, bernilai `Tatap Muka` atau `null`)
 - `meeting_date`: date (Tanggal pelaksanaan rapat)
@@ -100,7 +100,7 @@
 ## 8. Tabel `kpis` (Pencatatan Indikator Kinerja Fleksibel)
 - `id`: bigint unsigned, PK
 - `title`: varchar(255) (Nama indikator kinerja, misal: "Penyelesaian Program Kerja Pengawasan Tahunan (PKPT)")
-- `category`: enum('Operasional Audit', 'Kepatuhan & Tata Kelola', 'Administrasi & Pelaporan', 'Pengembangan SDM'), default: 'Operasional Audit'
+- `category`: varchar(255), default: 'Operasional Audit' (Dinamis mengambil dari tabel master `kpi_categories`)
 - `target_value`: decimal(8,2) (Nilai target kinerja)
 - `realization_value`: decimal(8,2) (Nilai realisasi capaian saat ini)
 - `unit`: varchar(50), default: '%' (Satuan ukur: '%', 'Hari', 'Dokumen', 'Kegiatan')

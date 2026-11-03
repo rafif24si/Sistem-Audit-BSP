@@ -106,12 +106,12 @@ export default function Internal({ letters, departments = [], filters }) {
                     <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
                         <thead className="bg-slate-50 text-xs uppercase font-semibold text-gray-600">
                             <tr>
+                                <th className="px-6 py-3.5 text-center w-28">Aksi</th>
                                 <th className="px-6 py-3.5">Nomor & Arah</th>
                                 <th className="px-6 py-3.5">Perihal & Departemen</th>
                                 <th className="px-6 py-3.5">Pengirim & Tujuan</th>
                                 <th className="px-6 py-3.5">Kerahasiaan</th>
                                 <th className="px-6 py-3.5">Status Approval</th>
-                                <th className="px-6 py-3.5 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 bg-white">
@@ -125,38 +125,6 @@ export default function Internal({ letters, departments = [], filters }) {
                             ) : (
                                 letters.data.map((l) => (
                                     <tr key={l.id} className="hover:bg-slate-50/80 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="font-mono font-medium text-emerald-950 text-xs">{l.letter_number}</div>
-                                            <div className="flex items-center mt-1 text-[11px] text-gray-500">
-                                                {l.direction === 'incoming' ? (
-                                                    <span className="inline-flex items-center text-blue-600"><ArrowDownLeft className="h-3 w-3 me-0.5" /> Masuk</span>
-                                                ) : (
-                                                    <span className="inline-flex items-center text-emerald-600"><ArrowUpRight className="h-3 w-3 me-0.5" /> Keluar</span>
-                                                )}
-                                                {l.agenda_number && <span className="ms-2 text-gray-400">Agd: {l.agenda_number}</span>}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="font-semibold text-gray-900 max-w-xs">{l.subject}</div>
-                                            <div className="flex items-center space-x-1.5 mt-0.5">
-                                                {l.letter_type_code && <span className="text-[10px] font-mono bg-slate-100 text-gray-600 px-1 rounded">{l.letter_type_code}</span>}
-                                                {l.recipient_department && (
-                                                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded">
-                                                        Dept: {l.recipient_department.code}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-xs">
-                                            <div><span className="text-gray-400">Dari:</span> <span className="font-medium text-gray-800">{l.sender}</span></div>
-                                            <div className="mt-0.5"><span className="text-gray-400">Kepada:</span> <span className="font-medium text-gray-800">{l.recipient}</span></div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <StatusBadge status={l.confidentiality} type="confidentiality" />
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <StatusBadge status={l.approval_status} type="approval_status" />
-                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                             <div className="inline-flex items-center space-x-1.5">
                                                 {canApprove && l.direction === 'outgoing' && l.approval_status === 'pending_approval' && (
@@ -197,6 +165,38 @@ export default function Internal({ letters, departments = [], filters }) {
                                                     </>
                                                 )}
                                             </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="font-mono font-medium text-emerald-950 text-xs">{l.letter_number}</div>
+                                            <div className="flex items-center mt-1 text-[11px] text-gray-500">
+                                                {l.direction === 'incoming' ? (
+                                                    <span className="inline-flex items-center text-blue-600"><ArrowDownLeft className="h-3 w-3 me-0.5" /> Masuk</span>
+                                                ) : (
+                                                    <span className="inline-flex items-center text-emerald-600"><ArrowUpRight className="h-3 w-3 me-0.5" /> Keluar</span>
+                                                )}
+                                                {l.agenda_number && <span className="ms-2 text-gray-400">Agd: {l.agenda_number}</span>}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="font-semibold text-gray-900 max-w-xs">{l.subject}</div>
+                                            <div className="flex items-center space-x-1.5 mt-0.5">
+                                                {l.letter_type_code && <span className="text-[10px] font-mono bg-slate-100 text-gray-600 px-1 rounded">{l.letter_type_code}</span>}
+                                                {l.recipient_department && (
+                                                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded">
+                                                        Dept: {l.recipient_department.code}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-xs">
+                                            <div><span className="text-gray-400">Dari:</span> <span className="font-medium text-gray-800">{l.sender}</span></div>
+                                            <div className="mt-0.5"><span className="text-gray-400">Kepada:</span> <span className="font-medium text-gray-800">{l.recipient}</span></div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <StatusBadge status={l.confidentiality} type="confidentiality" />
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <StatusBadge status={l.approval_status} type="approval_status" />
                                         </td>
                                     </tr>
                                 ))

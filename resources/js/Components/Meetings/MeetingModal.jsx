@@ -8,7 +8,7 @@ import MeetingModeLocationSection from '@/Components/Meetings/MeetingModeLocatio
 import MeetingDateTimeSection from '@/Components/Meetings/MeetingDateTimeSection';
 import { X, Calendar } from 'lucide-react';
 
-export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers = [] }) {
+export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers = [], meetingTypes = [] }) {
     const isEdit = !!meeting;
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -144,10 +144,18 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
                             onChange={(e) => setData('meeting_type', e.target.value)}
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
                         >
-                            <option value="Entry Meeting">Entry Meeting</option>
-                            <option value="Exit Meeting">Exit Meeting</option>
-                            <option value="Rapat Internal SPI">Rapat Internal SPI</option>
-                            <option value="Rapat Pimpinan">Rapat Pimpinan</option>
+                            {meetingTypes && meetingTypes.length > 0 ? (
+                                meetingTypes.map((mt) => (
+                                    <option key={mt.id || mt.name} value={mt.name}>{mt.name}</option>
+                                ))
+                            ) : (
+                                <>
+                                    <option value="Entry Meeting">Entry Meeting</option>
+                                    <option value="Exit Meeting">Exit Meeting</option>
+                                    <option value="Rapat Internal SPI">Rapat Internal SPI</option>
+                                    <option value="Rapat Pimpinan">Rapat Pimpinan</option>
+                                </>
+                            )}
                         </select>
                     </div>
 

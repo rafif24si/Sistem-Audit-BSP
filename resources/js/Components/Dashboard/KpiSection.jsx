@@ -3,7 +3,7 @@ import { router } from '@inertiajs/react';
 import KpiModal from '@/Components/Dashboard/KpiModal';
 import { Target, Plus, Edit2, Trash2, Award, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react';
 
-export default function KpiSection({ kpis = [], canManage = false }) {
+export default function KpiSection({ kpis = [], canManage = false, kpiCategories = [] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedKpi, setSelectedKpi] = useState(null);
 
@@ -175,6 +175,7 @@ export default function KpiSection({ kpis = [], canManage = false }) {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 kpi={selectedKpi}
+                kpiCategories={kpiCategories}
             />
         </div>
     );

@@ -19,6 +19,7 @@ export default function Dashboard({
     pendingFollowups = [],
     recentActivities = [],
     kpis = [],
+    kpiCategories = [],
 }) {
     const user = usePage().props.auth.user;
     const canManageKpi = ['super_admin', 'manager_spi'].includes(user?.role);
@@ -117,7 +118,7 @@ export default function Dashboard({
                 </div>
 
                 {/* Flexible KPI Progress Section */}
-                <KpiSection kpis={kpis} canManage={canManageKpi} />
+                <KpiSection kpis={kpis} canManage={canManageKpi} kpiCategories={kpiCategories} />
 
                 {/* Two-Column Section: Upcoming Meetings & Pending Follow-Ups */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

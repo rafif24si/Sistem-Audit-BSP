@@ -118,11 +118,11 @@ export default function Index({ users, departments, filters }) {
                     <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
                         <thead className="bg-slate-50 text-xs uppercase font-semibold text-gray-600">
                             <tr>
+                                <th className="px-6 py-3.5 text-center w-28">Aksi</th>
                                 <th className="px-6 py-3.5">Nama & Email</th>
                                 <th className="px-6 py-3.5">Peran (Role)</th>
                                 <th className="px-6 py-3.5">Unit Kerja / Departemen</th>
                                 <th className="px-6 py-3.5">Terdaftar</th>
-                                <th className="px-6 py-3.5 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 bg-white">
@@ -136,25 +136,6 @@ export default function Index({ users, departments, filters }) {
                             ) : (
                                 users.data.map((u) => (
                                     <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="font-semibold text-gray-900">{u.name}</div>
-                                            <div className="text-xs text-gray-500 font-mono mt-0.5">{u.email}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {getRoleBadge(u.role)}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {u.department ? (
-                                                <span className="font-medium text-gray-700">
-                                                    {u.department.code} - <span className="text-xs text-gray-500">{u.department.name}</span>
-                                                </span>
-                                            ) : (
-                                                <span className="text-xs text-gray-400 italic">Pusat / Semua</span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
-                                            {new Date(u.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })}
-                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                             <div className="inline-flex items-center space-x-2">
                                                 <button
@@ -174,6 +155,25 @@ export default function Index({ users, departments, filters }) {
                                                     </button>
                                                 )}
                                             </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="font-semibold text-gray-900">{u.name}</div>
+                                            <div className="text-xs text-gray-500 font-mono mt-0.5">{u.email}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {getRoleBadge(u.role)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {u.department ? (
+                                                <span className="font-medium text-gray-700">
+                                                    {u.department.code} - <span className="text-xs text-gray-500">{u.department.name}</span>
+                                                </span>
+                                            ) : (
+                                                <span className="text-xs text-gray-400 italic">Pusat / Semua</span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
+                                            {new Date(u.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })}
                                         </td>
                                     </tr>
                                 ))

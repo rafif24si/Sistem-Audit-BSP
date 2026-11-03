@@ -15,6 +15,7 @@ class LetterRequest extends FormRequest
     public function rules(): array
     {
         $letterId = $this->route('letter')?->id;
+        $isCreate = $this->isMethod('POST') && ! $letterId;
 
         return [
             'agenda_number' => ['nullable', 'string', 'max:100'],
@@ -44,7 +45,7 @@ class LetterRequest extends FormRequest
             'followup_notes' => ['nullable', 'string'],
             'followup_due_date' => ['nullable', 'date'],
             'file' => [
-                'nullable',
+                $isCreate ? 'required' : 'nullable',
                 'file',
                 'mimes:pdf,doc,docx,xls,xlsx,jpg,png',
                 'max:10240',
