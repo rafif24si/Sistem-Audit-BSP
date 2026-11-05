@@ -191,11 +191,22 @@ class MasterDocumentController extends Controller
             $data['file_path'] = $path;
         }
 
+        $fieldsToTrack = [
+            'document_number', 'title', 'department_id', 'document_type',
+            'version', 'effective_date', 'expired_date', 'control_status',
+            'confidentiality',
+        ];
+        $oldValues = $document->only($fieldsToTrack);
+
         $document->update($data);
+        $newValues = $document->only($fieldsToTrack);
 
         ActivityLogger::log(
             'UPDATE_MASTER_DOCUMENT',
-            "Memperbarui dokumen master: {$document->document_number} ({$document->title})"
+            "Memperbarui dokumen master: {$document->document_number} ({$document->title})",
+            null,
+            $oldValues,
+            $newValues
         );
 
         return redirect()->back()

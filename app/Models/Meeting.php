@@ -16,7 +16,8 @@ class Meeting extends Model
         'meeting_type',
         'meeting_mode',
         'platform',
-        'meeting_date',
+        'meeting_date_start',
+        'meeting_date_end',
         'start_time',
         'end_time',
         'location',
@@ -32,13 +33,14 @@ class Meeting extends Model
     protected function casts(): array
     {
         return [
-            'meeting_date' => 'date',
+            'meeting_date_start' => 'date',
+            'meeting_date_end' => 'date',
             'invitees' => 'array',
         ];
     }
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by')->withTrashed();
     }
 }

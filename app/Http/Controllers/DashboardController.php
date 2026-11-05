@@ -25,15 +25,15 @@ class DashboardController extends Controller
         $totalControlledDocuments = MasterDocument::where('control_status', 'TERKENDALI')->count();
         $totalPendingDispositions = Letter::where('direction', 'incoming')->doesntHave('dispositions')->count();
         $totalPendingFollowups = Letter::where('scope', 'external')->whereIn('followup_status', ['pending', 'in_progress'])->count();
-        $totalUpcomingMeetings = Meeting::whereIn('status', ['Terjadwal', 'Berlangsung'])->where('meeting_date', '>=', $today)->count();
+        $totalUpcomingMeetings = Meeting::where('status', 'Terjadwal')->where('meeting_date_start', '>=', $today)->count();
 
         // 2. Upcoming Audit Meetings
-        $upcomingMeetings = Meeting::where('meeting_date', '>=', $today)
-            ->whereIn('status', ['Terjadwal', 'Berlangsung'])
-            ->orderBy('meeting_date')
+        $upcomingMeetings = Meeting::where('meeting_date_start', '>=', $today)
+            ->where('status', 'Terjadwal')
+            ->orderBy('meeting_date_start')
             ->orderBy('start_time')
             ->limit(4)
-            ->get(['id', 'title', 'meeting_type', 'meeting_date', 'start_time', 'location', 'confidentiality', 'status']);
+            ->get(['id', 'title', 'meeting_type', 'meeting_date_start', 'meeting_date_end', 'start_time', 'location', 'confidentiality', 'status']);
 
         // 3. Priority External Letters needing Follow-Up
         $pendingFollowups = Letter::where('scope', 'external')

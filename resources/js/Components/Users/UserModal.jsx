@@ -120,7 +120,7 @@ export default function UserModal({ isOpen, onClose, user = null, departments = 
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <InputLabel htmlFor="role" value="Peran Sistem (Role)" />
+                            <InputLabel htmlFor="role" value="Peran Utama (Role)" />
                             <select
                                 id="role"
                                 value={data.role}
@@ -157,7 +157,7 @@ export default function UserModal({ isOpen, onClose, user = null, departments = 
                     <div className="rounded-lg bg-emerald-50/60 p-3 text-xs text-emerald-800 flex items-start space-x-2 border border-emerald-100">
                         <Shield className="h-4 w-4 text-emerald-600 flex-shrink-0 mt-0.5" />
                         <span>
-                            Role <strong>Super Admin</strong> memiliki akses manajemen sistem & user. Role <strong>Auditee</strong> hanya melihat data surat/dokumen terkait unit kerjanya.
+                            Role <strong>Super Admin</strong> memiliki akses manajemen sistem & user. Pengaturan Hak Akses granular dan penetapan PJS dikelola melalui menu terpisah <strong>Kelola Hak Akses & PJS</strong>.
                         </span>
                     </div>
 

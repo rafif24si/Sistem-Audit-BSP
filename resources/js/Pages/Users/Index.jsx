@@ -161,7 +161,14 @@ export default function Index({ users, departments, filters }) {
                                             <div className="text-xs text-gray-500 font-mono mt-0.5">{u.email}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {getRoleBadge(u.role)}
+                                            <div className="flex flex-col items-start gap-1">
+                                                {getRoleBadge(u.role)}
+                                                {u.is_pjs_active || u.pjs_role ? (
+                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                                        PJS {u.pjs_role === 'manager_spi' ? 'Manager SPI' : (u.pjs_role || 'Manager SPI')}
+                                                    </span>
+                                                ) : null}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {u.department ? (

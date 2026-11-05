@@ -10,9 +10,11 @@ import {
     History,
     Users,
     Building2,
+    DoorClosed,
     Target,
     Settings,
     ChevronDown,
+    ShieldCheck,
     X,
 } from 'lucide-react';
 
@@ -68,6 +70,12 @@ export default function Sidebar({ isOpen, onClose }) {
             active: url.startsWith('/users'),
         },
         {
+            name: 'Hak Akses & PJS',
+            href: route('permissions.index'),
+            icon: ShieldCheck,
+            active: url.startsWith('/permissions'),
+        },
+        {
             name: 'Data Master Departemen',
             href: route('departments.index'),
             icon: Building2,
@@ -78,6 +86,12 @@ export default function Sidebar({ isOpen, onClose }) {
             href: route('meeting-types.index'),
             icon: Calendar,
             active: url.startsWith('/meeting-types'),
+        },
+        {
+            name: 'Data Master Ruang Rapat',
+            href: route('meeting-rooms.index'),
+            icon: DoorClosed,
+            active: url.startsWith('/meeting-rooms'),
         },
         {
             name: 'Data Master Kategori KPI',

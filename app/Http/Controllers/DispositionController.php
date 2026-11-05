@@ -26,7 +26,7 @@ class DispositionController extends Controller
         if ($user->role === 'auditee') {
             $tab = 'received';
         } else {
-            $defaultTab = in_array($user->role, ['super_admin', 'manager_spi']) ? 'all' : 'received';
+            $defaultTab = (in_array($user->role, ['super_admin', 'manager_spi']) || $user->is_pjs || $user->hasPermission('dispositions.manage')) ? 'all' : 'received';
             $tab = $request->input('tab', $defaultTab);
         }
 
@@ -39,7 +39,20 @@ class DispositionController extends Controller
         if ($user->role === 'auditee' || $tab === 'received') {
             $query->where('to_user_id', $user->id);
         } elseif ($tab === 'given') {
-            $query->where('from_user_id', $user->id);
+            if ($user->role === 'super_admin') {
+                // Super Admin dapat melihat seluruh disposisi yang pernah diterbitkan
+            } elseif ($user->role === 'manager_spi' || $user->is_pjs_active) {
+                // Mendukung mutasi karyawan: Manager SPI / PJS baru dapat melihat seluruh riwayat
+                // disposisi yang pernah diterbitkan oleh posisi Manager SPI (termasuk pejabat lama)
+                $query->where(function ($q) use ($user) {
+                    $q->where('from_user_id', $user->id)
+                        ->orWhereHas('sender', function ($sq) {
+                            $sq->withTrashed()->where('role', 'manager_spi');
+                        });
+                });
+            } else {
+                $query->where('from_user_id', $user->id);
+            }
         }
 
         if ($search) {
@@ -99,7 +112,8 @@ class DispositionController extends Controller
      */
     public function store(DispositionRequest $request): RedirectResponse
     {
-        if (! in_array(Auth::user()?->role, ['super_admin', 'manager_spi'])) {
+        $user = Auth::user();
+        if (! in_array($user?->role, ['super_admin', 'manager_spi']) && ! $user?->is_pjs && ! $user?->hasPermission('dispositions.manage')) {
             abort(403, 'Akses Ditolak: Hanya Manager SPI atau Super Admin yang berhak memberikan lembar disposisi.');
         }
 

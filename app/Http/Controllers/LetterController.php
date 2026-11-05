@@ -237,11 +237,22 @@ class LetterController extends Controller
             $data['file_path'] = $path;
         }
 
+        $fieldsToTrack = [
+            'letter_number', 'subject', 'direction', 'scope', 'letter_date',
+            'sender', 'recipient', 'recipient_department_id', 'confidentiality',
+            'followup_status', 'followup_due_date', 'followup_notes',
+        ];
+        $oldValues = $letter->only($fieldsToTrack);
+
         $letter->update($data);
+        $newValues = $letter->only($fieldsToTrack);
 
         ActivityLogger::log(
             'UPDATE_LETTER',
-            "Memperbarui data surat: {$letter->letter_number}"
+            "Memperbarui data surat: {$letter->letter_number}",
+            null,
+            $oldValues,
+            $newValues
         );
 
         return redirect()->back()
@@ -255,7 +266,7 @@ class LetterController extends Controller
     {
         $user = Auth::user();
 
-        if (! in_array($user->role, ['super_admin', 'manager_spi'])) {
+        if (! in_array($user->role, ['super_admin', 'manager_spi']) && ! $user->is_pjs && ! $user->hasPermission('letters.approve')) {
             abort(403, 'Akses Ditolak: Hanya Manager SPI atau Super Admin yang berhak memberikan persetujuan surat keluar.');
         }
 

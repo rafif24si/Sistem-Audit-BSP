@@ -17,7 +17,7 @@ class MeetingMinutesRequest extends FormRequest
         return [
             'discussion_points' => ['required', 'string'],
             'decisions' => ['required', 'string'],
-            'status' => ['required', Rule::in(['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'])],
+            'status' => ['required', Rule::in(['Terjadwal', 'Selesai', 'Dibatalkan'])],
         ];
     }
 

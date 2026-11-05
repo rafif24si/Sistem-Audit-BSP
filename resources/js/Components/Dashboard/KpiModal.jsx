@@ -15,6 +15,7 @@ export default function KpiModal({ isOpen, onClose, kpi = null, kpiCategories = 
         realization_value: 0,
         unit: '%',
         period: 'Tahun 2026',
+        polarity: 'positive',
         status: 'Dalam Proses',
         notes: '',
         order_index: 0,
@@ -29,6 +30,7 @@ export default function KpiModal({ isOpen, onClose, kpi = null, kpiCategories = 
                 realization_value: kpi.realization_value ?? 0,
                 unit: kpi.unit || '%',
                 period: kpi.period || 'Tahun 2026',
+                polarity: kpi.polarity || 'positive',
                 status: kpi.status || 'Dalam Proses',
                 notes: kpi.notes || '',
                 order_index: kpi.order_index ?? 0,
@@ -39,12 +41,6 @@ export default function KpiModal({ isOpen, onClose, kpi = null, kpiCategories = 
     }, [kpi, isOpen]);
 
     if (!isOpen) return null;
-
-    const submit = (e) => {
-        e.preventDefault();
-        const action = isEdit ? put(route('kpis.update', kpi.id)) : post(route('kpis.store'));
-        action.then?.() || action;
-    };
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
@@ -175,20 +171,35 @@ export default function KpiModal({ isOpen, onClose, kpi = null, kpiCategories = 
                         </div>
                     </div>
 
-                    <div>
-                        <InputLabel htmlFor="status" value="Status Ketercapaian" />
-                        <select
-                            id="status"
-                            value={data.status}
-                            onChange={(e) => setData('status', e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
-                        >
-                            <option value="Dalam Proses">Dalam Proses (Sedang Berjalan)</option>
-                            <option value="Tercapai">Tercapai (Memenuhi / Melampaui Target)</option>
-                            <option value="Perlu Perhatian">Perlu Perhatian (Berisiko Terlambat)</option>
-                            <option value="Belum Tercapai">Belum Tercapai</option>
-                        </select>
-                        <InputError message={errors.status} className="mt-1" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <InputLabel htmlFor="polarity" value="Polaritas Target" />
+                            <select
+                                id="polarity"
+                                value={data.polarity}
+                                onChange={(e) => setData('polarity', e.target.value)}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
+                            >
+                                <option value="positive">Positif (Makin Tinggi Baik)</option>
+                                <option value="negative">Negatif (Makin Rendah Baik)</option>
+                            </select>
+                            <InputError message={errors.polarity} className="mt-1" />
+                        </div>
+                        <div>
+                            <InputLabel htmlFor="status" value="Status Ketercapaian" />
+                            <select
+                                id="status"
+                                value={data.status}
+                                onChange={(e) => setData('status', e.target.value)}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
+                            >
+                                <option value="Dalam Proses">Dalam Proses</option>
+                                <option value="Tercapai">Tercapai</option>
+                                <option value="Perlu Perhatian">Perlu Perhatian</option>
+                                <option value="Belum Tercapai">Belum Tercapai</option>
+                            </select>
+                            <InputError message={errors.status} className="mt-1" />
+                        </div>
                     </div>
 
                     <div>

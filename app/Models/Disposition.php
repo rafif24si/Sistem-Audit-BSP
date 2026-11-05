@@ -34,16 +34,16 @@ class Disposition extends Model
 
     public function letter(): BelongsTo
     {
-        return $this->belongsTo(Letter::class);
+        return $this->belongsTo(Letter::class)->withTrashed();
     }
 
     public function sender(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'from_user_id');
+        return $this->belongsTo(User::class, 'from_user_id')->withTrashed();
     }
 
     public function recipient(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'to_user_id');
+        return $this->belongsTo(User::class, 'to_user_id')->withTrashed();
     }
 }

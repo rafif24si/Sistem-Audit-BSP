@@ -23,7 +23,7 @@
 - `title`: varchar(255)
 - `department_id`: foreignId (`departments.id`)
 - `document_type`: enum('MAN', 'SOP', 'WI', 'FORM')
-- `version`: varchar(10), default: '00' (Contoh: `00`, `01`, `02`)
+- `version`: varchar(10), default: '01' (Otomatis naik: `01`, `02`, `03`)
 - `effective_date`: date (Tanggal berlaku / TMT)
 - `expired_date`: date, nullable (Batas retensi 3 tahun)
 - `control_status`: enum('TERKENDALI', 'TIDAK_TERKENDALI', 'KADALUARSA'), default: 'TERKENDALI'
@@ -35,7 +35,7 @@
 ## 4. Tabel `letters` (Surat Internal & Surat Eksternal)
 - `id`: bigint unsigned, PK
 - `agenda_number`: varchar(100), nullable (Nomor agenda khusus surat masuk)
-- `letter_number`: varchar(100), unique (Nomor surat resmi / auto-generated untuk surat keluar)
+- `letter_number`: varchar(100), unique (Nomor surat resmi / auto-generated untuk surat keluar. Untuk eksternal diisi manual)
 - `scope`: enum('internal', 'external') (Membedakan Surat Internal dan Eksternal)
 - `direction`: enum('incoming', 'outgoing') (Surat Masuk atau Surat Keluar)
 - `letter_type_code`: enum('ST', 'PA', 'DT', 'KF', 'TL', 'KS', 'KP', 'UM', 'LHA', 'LAP'), nullable
@@ -49,7 +49,7 @@
 - `approval_status`: enum('draft', 'pending_approval', 'approved', 'rejected'), default: 'approved' (Status persetujuan surat keluar)
 - `approved_by`: foreignId (`users.id`), nullable (Manager SPI / Super Admin pemberi persetujuan)
 - `approval_notes`: text, nullable (Catatan persetujuan / revisi)
-- `file_path`: varchar(255), nullable
+- `file_path`: varchar(255) (Wajib lampiran)
 - `followup_status`: enum('not_required', 'pending', 'in_progress', 'completed'), default: 'not_required' (Khusus pelacakan Follow-Up Surat Eksternal/Audit)
 - `followup_notes`: text, nullable (Catatan hasil follow-up)
 - `followup_due_date`: date, nullable (Tenggat waktu follow-up)
@@ -76,15 +76,16 @@
 - `meeting_type`: varchar(255), default: 'Entry Meeting' (Dinamis mengambil dari tabel master `meeting_types`, seperti 'Entry Meeting', 'Exit Meeting', 'Rapat Pre-Job / Safety Briefing', dll.)
 - `meeting_mode`: enum('Offline', 'Online'), default: 'Offline' (Pilihan pelaksanaan rapat Offline atau Online)
 - `platform`: enum('Tatap Muka', 'Zoom', 'Google Meet', 'Microsoft Teams'), nullable, default: 'Tatap Muka' (Jika `meeting_mode` = 'Online', pilih `Zoom`, `Google Meet`, atau `Microsoft Teams`; jika `Offline`, bernilai `Tatap Muka` atau `null`)
-- `meeting_date`: date (Tanggal pelaksanaan rapat)
+- `meeting_date_start`: date (Tanggal mulai pelaksanaan rapat)
+- `meeting_date_end`: date, nullable (Tanggal selesai jika lebih dari 1 hari)
 - `start_time`: time
 - `end_time`: time, nullable
-- `location`: varchar(255) (Nama tempat/ruangan fisik jika Offline, atau tautan/URL meeting jika Online)
+- `location`: varchar(255) (Foreign id ke tabel `meeting_rooms` jika Offline, atau tautan/URL meeting jika Online)
 - `invitees`: json (Daftar nama/user_id peserta undangan rapat)
-- `discussion_points`: longText, nullable (Isi pembahasan rapat / Notulen)
-- `decisions`: longText, nullable (Hasil keputusan / kesimpulan rapat)
+- `discussion_points`: longText, nullable (Isi pembahasan rapat / Notulen. Hanya bisa diinput saat status Selesai)
+- `decisions`: longText, nullable (Hasil keputusan / kesimpulan rapat. Hanya bisa diinput saat status Selesai)
 - `confidentiality`: enum('Biasa', 'Terbatas', 'Rahasia'), default: 'Terbatas'
-- `status`: enum('Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'), default: 'Terjadwal'
+- `status`: enum('Terjadwal', 'Selesai', 'Dibatalkan'), default: 'Terjadwal' (Status rapat diubah secara otomatis saat notulen lengkap)
 - `attachment_path`: varchar(255), nullable (File absensi / materi rapat)
 - `created_by`: foreignId (`users.id`)
 - `timestamps` & `softDeletes`
@@ -94,6 +95,8 @@
 - `user_id`: foreignId (`users.id`), nullable
 - `action`: varchar(100) (Contoh: `CREATE_LETTER`, `UPDATE_DISPOSITION`, `ARCHIVE_SOP`)
 - `description`: text
+- `old_values`: json, nullable (Mencatat snapshot nilai sebelum perubahan)
+- `new_values`: json, nullable (Mencatat snapshot nilai sesudah perubahan)
 - `ip_address`: varchar(45), nullable
 - `created_at`: timestamp
 
@@ -105,9 +108,37 @@
 - `realization_value`: decimal(8,2) (Nilai realisasi capaian saat ini)
 - `unit`: varchar(50), default: '%' (Satuan ukur: '%', 'Hari', 'Dokumen', 'Kegiatan')
 - `period`: varchar(50) (Periode capaian, misal: 'Tahun 2026', 'Triwulan III 2026')
+- `polarity`: enum('positive', 'negative'), default: 'positive' ('positive' jika makin besar makin baik, 'negative' jika makin kecil makin baik)
 - `status`: enum('Tercapai', 'Dalam Proses', 'Perlu Perhatian', 'Belum Tercapai'), default: 'Dalam Proses'
 - `notes`: text, nullable (Catatan evaluasi / kendala pencapaian)
+- `evidence_path`: varchar(255), nullable (Bukti / lampiran capaian KPI)
 - `order_index`: int, default: 0
 - `created_by`: foreignId (`users.id`), nullable
 - `updated_by`: foreignId (`users.id`), nullable
 - `timestamps` & `softDeletes`
+
+## 9. Tabel `meeting_rooms` (Data Master Ruangan Rapat)
+- `id`: bigint unsigned, PK
+- `name`: varchar(255), unique (Nama ruangan, misal: "Ruang Rapat SPI Lantai 3", "Ruang Komite Lt. 6")
+- `capacity`: int, nullable (Kapasitas maksimal ruangan)
+- `created_by`: foreignId (`users.id`), nullable
+- `updated_by`: foreignId (`users.id`), nullable
+- `timestamps` & `softDeletes`
+
+## 10. Tabel Hak Akses Dinamis & PJS (Role Management)
+
+**Tabel `permissions` (Daftar Fitur/Aksi yang bisa dilakukan)**
+- `id`: bigint unsigned, PK
+- `name`: varchar(255), unique (Contoh: `create_sop`, `read_sop`, `approve_letter`, dll)
+- `timestamps`
+
+**Tabel `user_permissions` (Pivot: Hak Akses Spesifik Pengguna)**
+- `user_id`: foreignId (`users.id`)
+- `permission_id`: foreignId (`permissions.id`)
+- `timestamps`
+
+**Penambahan Kolom di Tabel `users` (Untuk Fitur PJS)**
+*Ubah definisi tabel users yang sudah ada dengan menambahkan kolom berikut:*
+- `pjs_role`: varchar(50), nullable (Contoh: 'manager_spi' jika sedang menjadi PJS)
+- `pjs_start_date`: date, nullable (Tanggal mulai tugas PJS)
+- `pjs_end_date`: date, nullable (Tanggal akhir tugas PJS. Melewati tanggal ini, hak PJS otomatis gugur)

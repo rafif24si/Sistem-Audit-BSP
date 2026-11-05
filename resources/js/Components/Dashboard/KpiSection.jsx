@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import KpiModal from '@/Components/Dashboard/KpiModal';
-import { Target, Plus, Edit2, Trash2, Award, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react';
+import KpiProgressModal from '@/Components/Dashboard/KpiProgressModal';
+import { Target, Plus, Edit2, Trash2, Award, TrendingUp, AlertCircle, CheckCircle2, Download } from 'lucide-react';
 
 export default function KpiSection({ kpis = [], canManage = false, kpiCategories = [] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedKpi, setSelectedKpi] = useState(null);
+    const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
+    const [selectedProgressKpi, setSelectedProgressKpi] = useState(null);
 
     const handleCreate = () => {
         setSelectedKpi(null);
@@ -15,6 +18,11 @@ export default function KpiSection({ kpis = [], canManage = false, kpiCategories
     const handleEdit = (kpi) => {
         setSelectedKpi(kpi);
         setIsModalOpen(true);
+    };
+
+    const handleOpenProgress = (kpi) => {
+        setSelectedProgressKpi(kpi);
+        setIsProgressModalOpen(true);
     };
 
     const handleDelete = (kpi) => {
@@ -104,9 +112,16 @@ export default function KpiSection({ kpis = [], canManage = false, kpiCategories
                             >
                                 <div>
                                     <div className="flex items-center justify-between gap-2 mb-2">
-                                        <div className="flex items-center space-x-2">
+                                        <div className="flex items-center space-x-1.5 flex-wrap gap-y-1">
                                             <span className="text-[10px] font-bold text-gray-500 bg-white border border-gray-200 px-2 py-0.5 rounded-md">
                                                 {kpi.category}
+                                            </span>
+                                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${
+                                                kpi.polarity === 'negative'
+                                                    ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                                    : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                            }`}>
+                                                {kpi.polarity === 'negative' ? 'Negatif (Min)' : 'Positif (Maks)'}
                                             </span>
                                             <span className="text-[10px] text-gray-400 font-medium">
                                                 {kpi.period}
@@ -122,7 +137,7 @@ export default function KpiSection({ kpis = [], canManage = false, kpiCategories
                                                     <button
                                                         onClick={() => handleEdit(kpi)}
                                                         className="p-1 text-gray-400 hover:text-blue-600 rounded hover:bg-white"
-                                                        title="Ubah / Sesuaikan KPI"
+                                                        title="Sesuaikan Parameter KPI"
                                                     >
                                                         <Edit2 className="h-3.5 w-3.5" />
                                                     </button>
@@ -158,11 +173,37 @@ export default function KpiSection({ kpis = [], canManage = false, kpiCategories
                                             Target: <strong className="text-gray-800">{kpi.target_value} {kpi.unit}</strong> ({kpi.achievement_percentage}%)
                                         </span>
                                     </div>
-                                    <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+                                    <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden mb-3">
                                         <div
                                             className={`h-full rounded-full transition-all duration-500 ${style.bar}`}
                                             style={{ width: `${pct}%` }}
                                         />
+                                    </div>
+
+                                    <div className="flex items-center justify-between pt-1">
+                                        {kpi.evidence_path ? (
+                                            <a
+                                                href={route('kpis.evidence', kpi.id)}
+                                                className="inline-flex items-center text-xs font-semibold text-emerald-700 hover:text-emerald-900 underline"
+                                                title="Unduh Berkas Bukti Capaian"
+                                            >
+                                                <Download className="h-3.5 w-3.5 me-1" /> Unduh Bukti
+                                            </a>
+                                        ) : (
+                                            <span className="text-[11px] text-gray-400 italic">Belum ada bukti</span>
+                                        )}
+
+                                        {canManage && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleOpenProgress(kpi)}
+                                                className="inline-flex items-center text-xs font-semibold px-2.5 py-1 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition shadow-2xs"
+                                                title="Catat Realisasi & Bukti Kinerja Terbaru"
+                                            >
+                                                <TrendingUp className="h-3 w-3 me-1" />
+                                                Update Progres
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -176,6 +217,12 @@ export default function KpiSection({ kpis = [], canManage = false, kpiCategories
                 onClose={() => setIsModalOpen(false)}
                 kpi={selectedKpi}
                 kpiCategories={kpiCategories}
+            />
+
+            <KpiProgressModal
+                isOpen={isProgressModalOpen}
+                onClose={() => setIsProgressModalOpen(false)}
+                kpi={selectedProgressKpi}
             />
         </div>
     );

@@ -46,17 +46,17 @@ class Letter extends Model
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by')->withTrashed();
     }
 
     public function recipientDepartment(): BelongsTo
     {
-        return $this->belongsTo(Department::class, 'recipient_department_id');
+        return $this->belongsTo(Department::class, 'recipient_department_id')->withTrashed();
     }
 
     public function approver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'approved_by');
+        return $this->belongsTo(User::class, 'approved_by')->withTrashed();
     }
 
     public function dispositions(): HasMany

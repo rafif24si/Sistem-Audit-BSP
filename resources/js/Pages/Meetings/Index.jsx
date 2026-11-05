@@ -6,7 +6,7 @@ import Pagination from '@/Components/Pagination';
 import MeetingModal from '@/Components/Meetings/MeetingModal';
 import { Plus, Search, Calendar, MapPin, Video, Users, FileText, Download, Edit, Trash2 } from 'lucide-react';
 
-export default function Index({ meetings, allUsers, meetingTypes = [], filters }) {
+export default function Index({ meetings, allUsers, meetingTypes = [], meetingRooms = [], filters }) {
     const { user } = usePage().props.auth;
     const canManage = ['super_admin', 'manager_spi'].includes(user?.role);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -77,7 +77,6 @@ export default function Index({ meetings, allUsers, meetingTypes = [], filters }
                         >
                             <option value="">Semua Status Rapat</option>
                             <option value="Terjadwal">Terjadwal</option>
-                            <option value="Berlangsung">Berlangsung</option>
                             <option value="Selesai">Selesai</option>
                             <option value="Dibatalkan">Dibatalkan</option>
                         </select>
@@ -179,7 +178,10 @@ export default function Index({ meetings, allUsers, meetingTypes = [], filters }
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-600">
-                                                <div className="font-semibold text-gray-800">{m.meeting_date}</div>
+                                                <div className="font-semibold text-gray-800">
+                                                    {m.meeting_date_start}
+                                                    {m.meeting_date_end && m.meeting_date_end !== m.meeting_date_start ? ` s/d ${m.meeting_date_end}` : ''}
+                                                </div>
                                                 <div className="mt-0.5 text-gray-500">{m.start_time} - {m.end_time || 'Selesai'} WIB</div>
                                             </td>
                                             <td className="px-6 py-4 text-xs">
@@ -233,6 +235,7 @@ export default function Index({ meetings, allUsers, meetingTypes = [], filters }
                 meeting={selectedMeeting}
                 allUsers={allUsers}
                 meetingTypes={meetingTypes}
+                meetingRooms={meetingRooms}
             />
         </AuthenticatedLayout>
     );

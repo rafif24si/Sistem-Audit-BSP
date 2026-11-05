@@ -190,7 +190,10 @@
                 <tr>
                     <th>Hari, Tanggal (Revisi)</th>
                     <td>
-                        <strong>{{ \Carbon\Carbon::parse($meeting->meeting_date)->locale('id')->isoFormat('dddd, D MMMM Y') }}</strong>
+                        <strong>{{ \Carbon\Carbon::parse($meeting->meeting_date_start)->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                        @if($meeting->meeting_date_end && $meeting->meeting_date_end !== $meeting->meeting_date_start)
+                            s.d. {{ \Carbon\Carbon::parse($meeting->meeting_date_end)->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                        @endif</strong>
                         <span class="highlight-badge">Terbaru</span>
                     </td>
                 </tr>

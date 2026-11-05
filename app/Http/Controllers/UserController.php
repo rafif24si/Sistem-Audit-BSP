@@ -91,6 +91,12 @@ class UserController extends Controller
             abort(403, 'Akses Ditolak.');
         }
 
+        $oldValues = [
+            'name' => $user->name,
+            'role' => $user->role,
+            'department_id' => $user->department_id,
+        ];
+
         $data = $request->validated();
 
         if (!empty($data['password'])) {
@@ -101,9 +107,17 @@ class UserController extends Controller
 
         $user->update($data);
 
-        ActivityLogger::log(
+        $newValues = [
+            'name' => $user->name,
+            'role' => $user->role,
+            'department_id' => $user->department_id,
+        ];
+
+        ActivityLogger::logChange(
             'UPDATE_USER',
-            "Memperbarui data akun pengguna: {$user->name} ({$user->email})"
+            "Memperbarui data akun pengguna: {$user->name} ({$user->email})",
+            $oldValues,
+            $newValues
         );
 
         return redirect()->back()

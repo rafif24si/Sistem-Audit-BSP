@@ -51,7 +51,8 @@ export default function MeetingPreviewCard({ upcomingMeetings = [] }) {
                                     </h4>
                                     <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
                                         <span>
-                                            {formatDate(m.meeting_date)} • {formatTime(m.start_time)}
+                                            {formatDate(m.meeting_date_start)}
+                                            {m.meeting_date_end && m.meeting_date_end !== m.meeting_date_start ? ` - ${formatDate(m.meeting_date_end)}` : ''} • {formatTime(m.start_time)}
                                         </span>
                                         <span className="flex items-center gap-1 truncate">
                                             <MapPin className="w-3 h-3" />

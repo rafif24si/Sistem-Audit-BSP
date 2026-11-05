@@ -8,7 +8,7 @@ import MeetingModeLocationSection from '@/Components/Meetings/MeetingModeLocatio
 import MeetingDateTimeSection from '@/Components/Meetings/MeetingDateTimeSection';
 import { X, Calendar } from 'lucide-react';
 
-export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers = [], meetingTypes = [] }) {
+export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers = [], meetingTypes = [], meetingRooms = [] }) {
     const isEdit = !!meeting;
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -17,7 +17,8 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
         meeting_type: 'Entry Meeting',
         meeting_mode: 'Offline',
         platform: 'Tatap Muka',
-        meeting_date: new Date().toISOString().split('T')[0],
+        meeting_date_start: new Date().toISOString().split('T')[0],
+        meeting_date_end: '',
         start_time: '09:00',
         end_time: '11:00',
         location: '',
@@ -36,7 +37,8 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
                 meeting_type: meeting.meeting_type || 'Entry Meeting',
                 meeting_mode: meeting.meeting_mode || 'Offline',
                 platform: meeting.platform || (meeting.meeting_mode === 'Online' ? 'Zoom' : 'Tatap Muka'),
-                meeting_date: meeting.meeting_date ? meeting.meeting_date.substring(0, 10) : '',
+                meeting_date_start: meeting.meeting_date_start ? meeting.meeting_date_start.substring(0, 10) : '',
+                meeting_date_end: meeting.meeting_date_end ? meeting.meeting_date_end.substring(0, 10) : '',
                 start_time: meeting.start_time || '09:00',
                 end_time: meeting.end_time || '',
                 location: meeting.location || '',
@@ -54,10 +56,11 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
                 meeting_type: 'Entry Meeting',
                 meeting_mode: 'Offline',
                 platform: 'Tatap Muka',
-                meeting_date: new Date().toISOString().split('T')[0],
+                meeting_date_start: new Date().toISOString().split('T')[0],
+                meeting_date_end: '',
                 start_time: '09:00',
                 end_time: '11:00',
-                location: 'Ruang Rapat SPI Lantai 3',
+                location: meetingRooms[0]?.name || 'Ruang Rapat SPI Lantai 3',
                 invitees: [],
                 confidentiality: 'Terbatas',
                 status: 'Terjadwal',
@@ -69,20 +72,21 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
 
     if (!isOpen) return null;
 
+    const defaultRoom = meetingRooms[0]?.name || 'Ruang Rapat SPI Lantai 3';
     const handleModeChange = (newMode) => {
         if (newMode === 'Offline') {
             setData((prev) => ({
                 ...prev,
                 meeting_mode: 'Offline',
                 platform: 'Tatap Muka',
-                location: prev.location.startsWith('http') ? 'Ruang Rapat SPI Lantai 3' : prev.location,
+                location: prev.location.startsWith('http') ? defaultRoom : (prev.location || defaultRoom),
             }));
         } else {
             setData((prev) => ({
                 ...prev,
                 meeting_mode: 'Online',
                 platform: prev.platform === 'Tatap Muka' ? 'Zoom' : prev.platform,
-                location: prev.location.startsWith('Ruang') ? '' : prev.location,
+                location: prev.location.startsWith('http') ? prev.location : '',
             }));
         }
     };
@@ -166,6 +170,7 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
                         onModeChange={handleModeChange}
                         onPlatformChange={(val) => setData('platform', val)}
                         onLocationChange={(val) => setData('location', val)}
+                        meetingRooms={meetingRooms}
                         errors={errors}
                     />
 

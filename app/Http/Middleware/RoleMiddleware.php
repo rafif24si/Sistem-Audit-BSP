@@ -16,11 +16,23 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (! $request->user()) {
+        $user = $request->user();
+
+        if (! $user) {
             return redirect()->route('login');
         }
 
-        if (! in_array($request->user()->role, $roles)) {
+        // Super Admin memiliki akses penuh tanpa terkecuali
+        if ($user->role === 'super_admin') {
+            return $next($request);
+        }
+
+        // PJS Manager SPI yang masih aktif masa berlakunya mewarisi wewenang rute manager_spi
+        if ($user->is_pjs_active && ($user->pjs_role === 'manager_spi' || $user->is_pjs) && in_array('manager_spi', $roles)) {
+            return $next($request);
+        }
+
+        if (! in_array($user->role, $roles)) {
             abort(403, 'Akses Ditolak: Anda tidak memiliki izin untuk mengakses halaman ini.');
         }
 

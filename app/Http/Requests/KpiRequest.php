@@ -21,6 +21,7 @@ class KpiRequest extends FormRequest
             'realization_value' => ['required', 'numeric', 'min:0'],
             'unit' => ['required', 'string', 'max:50'],
             'period' => ['required', 'string', 'max:50'],
+            'polarity' => ['required', Rule::in(['positive', 'negative'])],
             'status' => [
                 'required',
                 Rule::in([
@@ -32,6 +33,7 @@ class KpiRequest extends FormRequest
             ],
             'notes' => ['nullable', 'string', 'max:1000'],
             'order_index' => ['nullable', 'integer', 'min:0'],
+            'evidence' => ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,jpg,png', 'max:10240'],
         ];
     }
 
@@ -44,7 +46,10 @@ class KpiRequest extends FormRequest
             'realization_value.required' => 'Nilai realisasi capaian saat ini wajib diisi.',
             'unit.required' => 'Satuan ukuran indikator wajib diisi (misal %, Hari).',
             'period.required' => 'Periode capaian KPI wajib diisi (misal Tahun 2026).',
+            'polarity.required' => 'Polaritas pergerakan target KPI wajib ditentukan.',
             'status.required' => 'Status capaian indikator wajib dipilih.',
+            'evidence.mimes' => 'Format file bukti harus berupa pdf, doc, docx, xls, xlsx, jpg, atau png.',
+            'evidence.max' => 'Ukuran file bukti tidak boleh melebihi 10MB.',
         ];
     }
 }

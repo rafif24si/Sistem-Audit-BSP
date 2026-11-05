@@ -10,6 +10,7 @@ export default function MeetingModeLocationSection({
     onModeChange,
     onPlatformChange,
     onLocationChange,
+    meetingRooms = [],
     errors = {},
 }) {
     return (
@@ -68,18 +69,40 @@ export default function MeetingModeLocationSection({
                         htmlFor="location"
                         value={meetingMode === 'Online' ? 'Link / Tautan Ruang Rapat Online' : 'Ruangan / Tempat Rapat Fisik'}
                     />
-                    <TextInput
-                        id="location"
-                        value={location}
-                        placeholder={
-                            meetingMode === 'Online'
-                                ? 'Contoh: https://zoom.us/j/... atau link Google Meet'
-                                : 'Contoh: Ruang Rapat SPI Lt. 3, Gedung Surya Dumai'
-                        }
-                        className="mt-1 block w-full"
-                        onChange={(e) => onLocationChange(e.target.value)}
-                        required
-                    />
+                    {meetingMode === 'Offline' ? (
+                        <select
+                            id="location"
+                            value={location}
+                            onChange={(e) => onLocationChange(e.target.value)}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
+                            required
+                        >
+                            <option value="">-- Pilih Ruang Rapat Fisik --</option>
+                            {meetingRooms && meetingRooms.length > 0 ? (
+                                meetingRooms.map((room) => (
+                                    <option key={room.id || room.name} value={room.name}>
+                                        {room.name} {room.capacity ? `(Kapasitas: ${room.capacity} org)` : ''}
+                                    </option>
+                                ))
+                            ) : (
+                                <>
+                                    <option value="Ruang Rapat SPI Lantai 3">Ruang Rapat SPI Lantai 3 (Kapasitas: 15 org)</option>
+                                    <option value="Ruang Rapat Komite Audit Lt. 6">Ruang Rapat Komite Audit Lt. 6 (Kapasitas: 25 org)</option>
+                                    <option value="Ruang Rapat Utama Gedung Surya Dumai">Ruang Rapat Utama Gedung Surya Dumai (Kapasitas: 50 org)</option>
+                                    <option value="Ruang Rapat Camp Zamrud (Lapangan)">Ruang Rapat Camp Zamrud (Lapangan) (Kapasitas: 20 org)</option>
+                                </>
+                            )}
+                        </select>
+                    ) : (
+                        <TextInput
+                            id="location"
+                            value={location}
+                            placeholder="Contoh: https://zoom.us/j/... atau link Google Meet"
+                            className="mt-1 block w-full"
+                            onChange={(e) => onLocationChange(e.target.value)}
+                            required
+                        />
+                    )}
                     <InputError message={errors.location} className="mt-1" />
                 </div>
             </div>

@@ -7,6 +7,7 @@ use App\Http\Requests\MeetingRequest;
 use App\Mail\MeetingInvitationMail;
 use App\Mail\MeetingUpdatedMail;
 use App\Models\Meeting;
+use App\Models\MeetingRoom;
 use App\Models\MeetingType;
 use App\Models\User;
 use App\Services\ActivityLogger;
@@ -62,18 +63,20 @@ class MeetingController extends Controller
             $query->where('meeting_type', $meetingType);
         }
 
-        $meetings = $query->latest('meeting_date')->paginate(10)->withQueryString();
+        $meetings = $query->latest('meeting_date_start')->paginate(10)->withQueryString();
 
         $allUsers = User::with('department')
             ->orderBy('name')
             ->get(['id', 'name', 'email', 'role', 'department_id']);
 
         $meetingTypes = MeetingType::orderBy('name')->get(['id', 'name']);
+        $meetingRooms = MeetingRoom::orderBy('name')->get(['id', 'name', 'capacity']);
 
         return Inertia::render('Meetings/Index', [
             'meetings' => $meetings,
             'allUsers' => $allUsers,
             'meetingTypes' => $meetingTypes,
+            'meetingRooms' => $meetingRooms,
             'filters' => [
                 'search' => $search,
                 'status' => $status,
@@ -104,7 +107,8 @@ class MeetingController extends Controller
 
         return Inertia::render('Meetings/Show', [
             'meeting' => $meeting,
-            'canEditNotulen' => in_array($user->role, ['super_admin', 'manager_spi', 'auditor']),
+            'canEditNotulen' => in_array($user->role, ['super_admin', 'manager_spi', 'auditor']) && $meeting->status === 'Selesai',
+            'canChangeStatus' => in_array($user->role, ['super_admin', 'manager_spi']),
         ]);
     }
 
@@ -113,7 +117,8 @@ class MeetingController extends Controller
      */
     public function store(MeetingRequest $request): RedirectResponse
     {
-        if (! in_array(Auth::user()?->role, ['super_admin', 'manager_spi'])) {
+        $user = Auth::user();
+        if (! in_array($user?->role, ['super_admin', 'manager_spi']) && ! $user?->is_pjs && ! $user?->hasPermission('meetings.manage')) {
             abort(403, 'Akses Ditolak: Hanya Manager SPI atau Super Admin yang berhak menjadwalkan rapat.');
         }
 
@@ -154,9 +159,10 @@ class MeetingController extends Controller
             }
         }
 
+        $dateInfo = $meeting->meeting_date_start . ($meeting->meeting_date_end ? " s/d {$meeting->meeting_date_end}" : '');
         ActivityLogger::log(
             'CREATE_MEETING',
-            "Menjadwalkan rapat: {$meeting->title} ({$meeting->meeting_type}) pada {$meeting->meeting_date} (Email terkirim: {$sentCount})"
+            "Menjadwalkan rapat: {$meeting->title} ({$meeting->meeting_type}) pada {$dateInfo} (Email terkirim: {$sentCount})"
         );
 
         return redirect()->route('meetings.index')
@@ -168,7 +174,8 @@ class MeetingController extends Controller
      */
     public function update(MeetingRequest $request, Meeting $meeting): RedirectResponse
     {
-        if (! in_array(Auth::user()?->role, ['super_admin', 'manager_spi'])) {
+        $user = Auth::user();
+        if (! in_array($user?->role, ['super_admin', 'manager_spi']) && ! $user?->is_pjs && ! $user?->hasPermission('meetings.manage')) {
             abort(403, 'Akses Ditolak: Hanya Manager SPI atau Super Admin yang berhak memperbarui jadwal rapat.');
         }
 
@@ -192,7 +199,19 @@ class MeetingController extends Controller
             $data['attachment_path'] = $path;
         }
 
+        $oldValues = $meeting->only([
+            'title', 'meeting_type', 'meeting_mode', 'platform',
+            'meeting_date_start', 'meeting_date_end', 'start_time', 'end_time',
+            'location', 'confidentiality', 'status',
+        ]);
+
         $meeting->update($data);
+
+        $newValues = $meeting->only([
+            'title', 'meeting_type', 'meeting_mode', 'platform',
+            'meeting_date_start', 'meeting_date_end', 'start_time', 'end_time',
+            'location', 'confidentiality', 'status',
+        ]);
 
         // Kirim ulang notifikasi email revisi jika opsi dicentang
         $sentCount = 0;
@@ -211,9 +230,11 @@ class MeetingController extends Controller
             }
         }
 
-        ActivityLogger::log(
+        ActivityLogger::logChange(
             'UPDATE_MEETING',
-            "Memperbarui agenda rapat: {$meeting->title}" . ($sentCount > 0 ? " (Email revisi terkirim: {$sentCount})" : '')
+            "Memperbarui agenda rapat: {$meeting->title}" . ($sentCount > 0 ? " (Email revisi terkirim: {$sentCount})" : ''),
+            $oldValues,
+            $newValues
         );
 
         $successMessage = "Agenda rapat '{$meeting->title}' berhasil diperbarui" .
@@ -232,17 +253,52 @@ class MeetingController extends Controller
             abort(403, 'Akses Ditolak: Anda tidak memiliki wewenang untuk mengisi atau memperbarui E-Notulen.');
         }
 
+        if ($meeting->status !== 'Selesai') {
+            abort(403, 'Akses Ditolak: Pengisian E-Notulen hanya diperbolehkan apabila status rapat telah Selesai.');
+        }
+
+        $oldValues = $meeting->only(['discussion_points', 'decisions', 'status']);
         $data = $request->validated();
-
         $meeting->update($data);
+        $newValues = $meeting->only(['discussion_points', 'decisions', 'status']);
 
-        ActivityLogger::log(
+        ActivityLogger::logChange(
             'UPDATE_NOTULEN',
-            "Mencatat E-Notulen hasil rapat: {$meeting->title} (Status: {$data['status']})"
+            "Mencatat E-Notulen hasil rapat: {$meeting->title} (Status: {$data['status']})",
+            $oldValues,
+            $newValues
         );
 
         return redirect()->back()
             ->with('success', 'E-Notulen dan butir keputusan rapat berhasil disimpan.');
+    }
+
+    /**
+     * Direct status update (e.g. from Meeting Detail to mark as Selesai).
+     */
+    public function updateStatus(Request $request, Meeting $meeting): RedirectResponse
+    {
+        $user = Auth::user();
+        if (! in_array($user?->role, ['super_admin', 'manager_spi']) && ! $user?->is_pjs && ! $user?->hasPermission('meetings.manage')) {
+            abort(403, 'Akses Ditolak: Hanya Manager SPI atau Super Admin yang berhak memperbarui status rapat.');
+        }
+
+        $validated = $request->validate([
+            'status' => ['required', 'in:Terjadwal,Selesai,Dibatalkan'],
+        ]);
+
+        $oldStatus = $meeting->status;
+        $meeting->update(['status' => $validated['status']]);
+
+        ActivityLogger::logChange(
+            'UPDATE_MEETING_STATUS',
+            "Mengubah status rapat '{$meeting->title}' dari {$oldStatus} menjadi {$validated['status']}",
+            ['status' => $oldStatus],
+            ['status' => $validated['status']]
+        );
+
+        return redirect()->back()
+            ->with('success', "Status rapat berhasil diperbarui menjadi '{$validated['status']}'.");
     }
 
     /**

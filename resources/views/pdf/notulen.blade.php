@@ -267,7 +267,7 @@
     <!-- JUDUL DOKUMEN -->
     <div class="doc-title-container">
         <div class="doc-title">RISALAH / NOTULEN RAPAT</div>
-        <div class="doc-subtitle">Nomor Arsip Rapat: BSP/SPI-NOT/{{ \Carbon\Carbon::parse($meeting->meeting_date)->format('Ym') }}/{{ str_pad($meeting->id, 4, '0', STR_PAD_LEFT) }}</div>
+        <div class="doc-subtitle">Nomor Arsip Rapat: BSP/SPI-NOT/{{ \Carbon\Carbon::parse($meeting->meeting_date_start)->format('Ym') }}/{{ str_pad($meeting->id, 4, '0', STR_PAD_LEFT) }}</div>
     </div>
 
     <!-- METADATA RAPAT -->
@@ -286,7 +286,10 @@
             <td class="info-label">Hari / Tanggal</td>
             <td class="info-colon">:</td>
             <td class="info-value">
-                {{ \Carbon\Carbon::parse($meeting->meeting_date)->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                {{ \Carbon\Carbon::parse($meeting->meeting_date_start)->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                @if($meeting->meeting_date_end && $meeting->meeting_date_end !== $meeting->meeting_date_start)
+                    &nbsp;s/d&nbsp;{{ \Carbon\Carbon::parse($meeting->meeting_date_end)->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                @endif
             </td>
         </tr>
         <tr>

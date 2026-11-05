@@ -1,12 +1,14 @@
+import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Pagination from '@/Components/Pagination';
+import ActivityLogDetailModal from '@/Components/ActivityLogs/ActivityLogDetailModal';
 import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
-import { History, Search, Shield, Filter, RotateCcw } from 'lucide-react';
+import { History, Search, Shield, Filter, RotateCcw, Eye } from 'lucide-react';
 
 export default function Index({ logs, actionTypes, filters }) {
     const [search, setSearch] = useState(filters.search || '');
     const [action, setAction] = useState(filters.action || '');
+    const [selectedLog, setSelectedLog] = useState(null);
 
     const handleFilter = (e) => {
         e?.preventDefault();
@@ -130,9 +132,10 @@ export default function Index({ logs, actionTypes, filters }) {
                         <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
                             <thead className="bg-slate-50 text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 <tr>
+                                    <th className="px-5 py-3.5 text-center w-20">Aksi</th>
                                     <th className="px-5 py-3.5">Waktu</th>
                                     <th className="px-5 py-3.5">Pengguna</th>
-                                    <th className="px-5 py-3.5">Aksi</th>
+                                    <th className="px-5 py-3.5">Aksi / Event</th>
                                     <th className="px-5 py-3.5">Deskripsi</th>
                                     <th className="px-5 py-3.5">IP Address</th>
                                 </tr>
@@ -141,6 +144,20 @@ export default function Index({ logs, actionTypes, filters }) {
                                 {logs.data?.length > 0 ? (
                                     logs.data.map((log) => (
                                         <tr key={log.id} className="hover:bg-slate-50/80 transition-colors">
+                                            <td className="px-5 py-3.5 whitespace-nowrap text-center">
+                                                {(log.old_values || log.new_values) ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSelectedLog(log)}
+                                                        className="inline-flex items-center p-1.5 text-emerald-700 hover:bg-emerald-50 rounded-lg transition"
+                                                        title="Lihat Komparasi Perubahan Data"
+                                                    >
+                                                        <Eye className="w-4 h-4" />
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-gray-300 text-xs">-</span>
+                                                )}
+                                            </td>
                                             <td className="px-5 py-3.5 whitespace-nowrap text-xs text-gray-500 font-mono">
                                                 {formatDate(log.created_at)}
                                             </td>
@@ -177,7 +194,7 @@ export default function Index({ logs, actionTypes, filters }) {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={5} className="py-12 text-center text-gray-500">
+                                        <td colSpan={6} className="py-12 text-center text-gray-500">
                                             <History className="mx-auto h-10 w-10 text-gray-300 mb-2" />
                                             <p className="text-sm font-medium">Belum ada data tercatat</p>
                                             <p className="text-xs text-gray-400 mt-1">
@@ -193,6 +210,12 @@ export default function Index({ logs, actionTypes, filters }) {
                     <Pagination links={logs.links} />
                 </div>
             </div>
+
+            <ActivityLogDetailModal
+                isOpen={!!selectedLog}
+                onClose={() => setSelectedLog(null)}
+                log={selectedLog}
+            />
         </AuthenticatedLayout>
     );
 }

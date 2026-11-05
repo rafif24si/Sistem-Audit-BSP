@@ -5,19 +5,33 @@ import InputError from '@/Components/InputError';
 export default function MeetingDateTimeSection({ data, setData, errors }) {
     return (
         <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <InputLabel htmlFor="meeting_date" value="Tanggal Rapat" />
+                    <InputLabel htmlFor="meeting_date_start" value="Tanggal Mulai Rapat" />
                     <TextInput
-                        id="meeting_date"
+                        id="meeting_date_start"
                         type="date"
-                        value={data.meeting_date}
+                        value={data.meeting_date_start}
                         className="mt-1 block w-full"
-                        onChange={(e) => setData('meeting_date', e.target.value)}
+                        onChange={(e) => setData('meeting_date_start', e.target.value)}
                         required
                     />
-                    <InputError message={errors.meeting_date} className="mt-1" />
+                    <InputError message={errors.meeting_date_start} className="mt-1" />
                 </div>
+                <div>
+                    <InputLabel htmlFor="meeting_date_end" value="Tanggal Selesai (Opsional untuk Multi-Hari)" />
+                    <TextInput
+                        id="meeting_date_end"
+                        type="date"
+                        value={data.meeting_date_end}
+                        className="mt-1 block w-full"
+                        onChange={(e) => setData('meeting_date_end', e.target.value)}
+                    />
+                    <InputError message={errors.meeting_date_end} className="mt-1" />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <InputLabel htmlFor="start_time" value="Waktu Mulai" />
                     <TextInput
@@ -28,6 +42,7 @@ export default function MeetingDateTimeSection({ data, setData, errors }) {
                         onChange={(e) => setData('start_time', e.target.value)}
                         required
                     />
+                    <InputError message={errors.start_time} className="mt-1" />
                 </div>
                 <div>
                     <InputLabel htmlFor="end_time" value="Waktu Selesai (Est)" />
@@ -38,6 +53,7 @@ export default function MeetingDateTimeSection({ data, setData, errors }) {
                         className="mt-1 block w-full"
                         onChange={(e) => setData('end_time', e.target.value)}
                     />
+                    <InputError message={errors.end_time} className="mt-1" />
                 </div>
             </div>
 
@@ -64,10 +80,10 @@ export default function MeetingDateTimeSection({ data, setData, errors }) {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
                     >
                         <option value="Terjadwal">Terjadwal</option>
-                        <option value="Berlangsung">Berlangsung</option>
                         <option value="Selesai">Selesai</option>
                         <option value="Dibatalkan">Dibatalkan</option>
                     </select>
+                    <InputError message={errors.status} className="mt-1" />
                 </div>
             </div>
         </div>

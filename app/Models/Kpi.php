@@ -18,8 +18,10 @@ class Kpi extends Model
         'realization_value',
         'unit',
         'period',
+        'polarity',
         'status',
         'notes',
+        'evidence_path',
         'order_index',
         'created_by',
         'updated_by',
@@ -40,16 +42,16 @@ class Kpi extends Model
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by')->withTrashed();
     }
 
     public function updater(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'updated_by');
+        return $this->belongsTo(User::class, 'updated_by')->withTrashed();
     }
 
     /**
-     * Calculate achievement percentage.
+     * Calculate achievement percentage based on target, realization, and polarity.
      */
     public function getAchievementPercentageAttribute(): float
     {
@@ -57,7 +59,18 @@ class Kpi extends Model
             return 0;
         }
 
-        $percentage = ($this->realization_value / $this->target_value) * 100;
-        return round($percentage, 1);
+        if ($this->polarity === 'negative') {
+            // Semakin kecil realisasi semakin baik
+            if ($this->realization_value <= $this->target_value) {
+                $percentage = 100;
+            } else {
+                $percentage = max(0, (2 - ($this->realization_value / $this->target_value)) * 100);
+            }
+        } else {
+            // Semakin besar realisasi semakin baik
+            $percentage = ($this->realization_value / $this->target_value) * 100;
+        }
+
+        return round(min(100, max(0, $percentage)), 1);
     }
 }

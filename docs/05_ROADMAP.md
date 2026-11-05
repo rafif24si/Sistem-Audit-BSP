@@ -65,10 +65,31 @@ Kerjakan daftar di bawah ini secara berurutan (1 kotak per siklus Plan -> Execut
   - Master Departemen
   - Master Jenis Rapat
   - Master Kategori KPI
+- [x] Implementasikan Manajemen Data Master tambahan khusus untuk **Master Ruangan Rapat (`meeting_rooms`)** (Migration, Model, Controller, Request, dan UI CRUD).
 - [x] Hubungkan form pembuatan jadwal rapat, pengelolaan KPI, dan user management dengan Data Master yang telah dibuat agar opsi dropdown menjadi dinamis.
+- [x] Perbarui form `MeetingModal.jsx`: Hubungkan input lokasi dengan Master Ruangan Rapat. Jika pengguna memilih mode `Offline`, ubah input teks biasa menjadi *dropdown* yang mengambil data dinamis dari tabel `meeting_rooms`.
 - [x] Modifikasi form Dokumen Master SOP (`DocumentModal.jsx`) untuk menghapus input versi manual. Buat logika di Controller (`MasterDocumentController@store`) untuk men-*generate* dan menetapkan versi dokumen secara otomatis (misal: dimulai dari `01` dan bertambah pada setiap revisi).
 - [x] Tambahkan validasi pada `LetterRequest` atau `LetterController` untuk mewajibkan lampiran file (`file_path` required) saat membuat Surat Internal dan Eksternal baru.
 - [x] Pastikan Super Admin dapat melakukan CRUD pada seluruh entitas di sistem tanpa batasan kepemilikan departemen, melampaui proteksi hak akses *role* lainnya.
 - [x] Modifikasi komponen tabel (atau view terkait) di antarmuka pengguna agar kolom yang berisi tombol aksi (*Edit*, *Delete*, *Download*) dipindahkan ke sisi paling kiri (sebelum kolom nomor/judul).
 - [x] Perkuat pencatatan log aktivitas. Pastikan setiap tindakan pengunggahan atau perubahan dokumen dan surat tercatat dengan detail di tabel `activity_logs`.
-- [x] Modifikasi komponen `Sidebar.jsx`. Kelompokkan menu "Kelola Pengguna", "Log Aktivitas", dan menu "Data Master" (Departemen, Jenis Rapat, Kategori KPI) ke dalam satu menu *Dropdown/Collapsible* (misal bernama "Pengaturan Sistem" atau "Data Master"). Pastikan dropdown ini hanya di-render untuk role `super_admin`.
+- [x] Modifikasi komponen `Sidebar.jsx`. Kelompokkan menu "Kelola Pengguna", "Log Aktivitas", dan semua menu "Data Master" (Departemen, Jenis Rapat, Kategori KPI, dan **Ruang Rapat**) ke dalam satu menu *Dropdown/Collapsible* (misal bernama "Pengaturan Sistem" atau "Data Master"). Pastikan dropdown ini hanya di-render untuk role `super_admin`.
+
+## Fase 13: Audit Trail Lanjutan, Refactoring Fitur Rapat & Modul KPI (Pembaruan Diskusi)
+- [x] Ubah migrasi tabel `activity_logs`. Tambahkan kolom `old_values` (JSON) dan `new_values` (JSON) nullable. Perbarui fungsi `ActivityLogger` agar bisa menyimpan rekaman state lama dan state baru. Implementasikan di proses CRUD kritikal (seperti edit dokumen SOP, edit surat).
+- [x] Refactor form Modul Rapat:
+  - Buat migration update untuk tabel `meetings`, ubah `meeting_date` menjadi `meeting_date_start` (date) dan tambahkan `meeting_date_end` (date).
+  - Hapus status 'Berlangsung'. Rapat hanya memiliki siklus: 'Terjadwal' -> 'Selesai' -> 'Dibatalkan'.
+  - Pastikan pengisian E-Notulen HANYA diperbolehkan setelah status rapat berubah menjadi 'Selesai'.
+- [x] Refactor Manajemen KPI:
+  - Buat migration update untuk tabel `kpis`. Tambahkan kolom `polarity` (enum: 'positive', 'negative' - default: positive) dan `evidence_path` (upload lampiran bukti progress).
+  - Modifikasi UI Modul KPI agar mendukung penambahan log capaian secara berkala (*Update Progress* KPI) lengkap dengan upload berkas dan kolom catatan progress, yang otomatis men-trigger kalkulasi *progress bar* di dashboard.
+- [x] Modifikasi sistem Role/Permission: Jangan *hardcode* role untuk user. Sediakan matriks checklist (UI Module Rights) di menu "Kelola Pengguna" agar Super Admin bisa memberi/mencabut hak akses fungsi secara spesifik atau memberikan akses PJS (*Penanggung Jawab Sementara*). (Opsional: Jika kompleks, gunakan library pihak ketiga seperti `spatie/laravel-permission`).
+
+## Fase 14: Pemisahan Modul Hak Akses Dinamis & PJS (Role Management)
+- [x] Instalasi dan Konfigurasi Library: Instal package `spatie/laravel-permission` (rekomendasi untuk kemudahan) atau buat tabel custom `permissions` dan `user_permissions`. Jalankan migration untuk membuat tabel-tabel hak akses tersebut.
+- [x] Update Tabel Users (Fitur PJS): Buat migration untuk menambahkan kolom `pjs_role` (varchar, nullable), `pjs_start_date` (date, nullable), dan `pjs_end_date` (date, nullable) pada tabel `users`.
+- [x] Refactor Form Pengguna: Buka `UserModal.jsx` (Modul Kelola Pengguna). Hapus bagian pengaturan hak akses dan PJS dari form ini. Kembalikan fungsinya murni hanya untuk manajemen identitas (Nama, Email, Password, Departemen).
+- [x] Pembuatan Halaman Baru: Buat `PermissionController` dan halaman React baru `Pages/Permissions/Index.jsx` (Kelola Hak Akses & PJS). Tambahkan link menu ini di `Sidebar.jsx` (di dalam dropdown Pengaturan Sistem, di bawah Kelola Pengguna).
+- [x] Desain UI Matriks Hak Akses: Di halaman `/permissions`, buat antarmuka di mana Super Admin bisa memilih pengguna, lalu memunculkan tabel Matriks CRUD (Create, Read, Update, Delete) per modul (SOP, Surat Internal, Surat Eksternal, Rapat) menggunakan checkbox.
+- [x] Desain UI & Logika PJS: Pada halaman yang sama, tambahkan form *toggle* "Tetapkan sebagai PJS". Pastikan ada pengecekan di backend (Middleware / Gate) di mana jika tanggal hari ini sudah melewati `pjs_end_date`, maka hak akses PJS tersebut otomatis diabaikan (gugur).

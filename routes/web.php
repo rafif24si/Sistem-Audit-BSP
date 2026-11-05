@@ -47,6 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/meetings', [\App\Http\Controllers\MeetingController::class, 'store'])->name('meetings.store');
     Route::get('/meetings/{meeting}', [\App\Http\Controllers\MeetingController::class, 'show'])->name('meetings.show');
     Route::put('/meetings/{meeting}', [\App\Http\Controllers\MeetingController::class, 'update'])->name('meetings.update');
+    Route::patch('/meetings/{meeting}/status', [\App\Http\Controllers\MeetingController::class, 'updateStatus'])->name('meetings.update-status');
     Route::patch('/meetings/{meeting}/minutes', [\App\Http\Controllers\MeetingController::class, 'updateMinutes'])->name('meetings.update-minutes');
     Route::delete('/meetings/{meeting}', [\App\Http\Controllers\MeetingController::class, 'destroy'])->name('meetings.destroy');
     Route::get('/meetings/{meeting}/download', [\App\Http\Controllers\MeetingController::class, 'downloadAttachment'])->name('meetings.download');
@@ -55,17 +56,24 @@ Route::middleware('auth')->group(function () {
     // Pencatatan Indikator Kinerja (KPI) Fleksibel
     Route::post('/kpis', [\App\Http\Controllers\KpiController::class, 'store'])->name('kpis.store');
     Route::put('/kpis/{kpi}', [\App\Http\Controllers\KpiController::class, 'update'])->name('kpis.update');
+    Route::post('/kpis/{kpi}/progress', [\App\Http\Controllers\KpiController::class, 'updateProgress'])->name('kpis.update-progress');
+    Route::get('/kpis/{kpi}/evidence', [\App\Http\Controllers\KpiController::class, 'downloadEvidence'])->name('kpis.evidence');
     Route::delete('/kpis/{kpi}', [\App\Http\Controllers\KpiController::class, 'destroy'])->name('kpis.destroy');
     
-    // Khusus Super Admin (Kelola Pengguna, Data Master & Audit Trail)
+    // Khusus Super Admin (Kelola Pengguna, Hak Akses & PJS, Data Master & Audit Trail)
     Route::middleware('role:super_admin')->group(function () {
         Route::resource('users', \App\Http\Controllers\UserController::class)->except(['create', 'show', 'edit']);
+        Route::get('/permissions', [\App\Http\Controllers\PermissionController::class, 'index'])->name('permissions.index');
+        Route::put('/permissions/{user}', [\App\Http\Controllers\PermissionController::class, 'updateUserPermissions'])->name('permissions.update');
+        Route::post('/permissions/{user}/pjs', [\App\Http\Controllers\PermissionController::class, 'updateUserPjs'])->name('permissions.update-pjs');
+        Route::delete('/permissions/{user}/pjs', [\App\Http\Controllers\PermissionController::class, 'revokeUserPjs'])->name('permissions.revoke-pjs');
         Route::get('/activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('activity-logs.index');
 
         // Manajemen Data Master
         Route::resource('departments', \App\Http\Controllers\DepartmentController::class)->except(['create', 'show', 'edit']);
         Route::resource('meeting-types', \App\Http\Controllers\MeetingTypeController::class)->except(['create', 'show', 'edit']);
         Route::resource('kpi-categories', \App\Http\Controllers\KpiCategoryController::class)->except(['create', 'show', 'edit']);
+        Route::resource('meeting-rooms', \App\Http\Controllers\MeetingRoomController::class)->except(['create', 'show', 'edit']);
     });
 });
 
