@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\Kpi;
 use App\Models\KpiCategory;
+use App\Models\KpiPeriod;
 use App\Models\Letter;
 use App\Models\MasterDocument;
 use App\Models\Meeting;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,7 +19,7 @@ class DashboardController extends Controller
     /**
      * Display the main integrated audit dashboard.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $today = Carbon::today();
 
@@ -49,11 +51,23 @@ class DashboardController extends Controller
             ->get();
 
         // 5. Flexible Key Performance Indicators (KPIs)
-        $kpis = Kpi::with('creator:id,name')
-            ->orderBy('order_index')
-            ->latest('updated_at')
-            ->get();
+        $kpiPeriods = KpiPeriod::orderByDesc('year')->get(['id', 'year', 'is_active']);
+        $activePeriod = $kpiPeriods->firstWhere('is_active', true) ?? $kpiPeriods->first();
 
+        $selectedPeriodId = $request->input('kpi_period_id');
+        if ($selectedPeriodId === null && $activePeriod) {
+            $selectedPeriodId = (string) $activePeriod->id;
+        }
+
+        $kpisQuery = Kpi::with(['creator:id,name', 'kpiPeriod:id,year'])
+            ->orderBy('order_index')
+            ->latest('updated_at');
+
+        if ($selectedPeriodId) {
+            $kpisQuery->where('kpi_period_id', $selectedPeriodId);
+        }
+
+        $kpis = $kpisQuery->get();
         $kpiCategories = KpiCategory::orderBy('name')->get(['id', 'name']);
 
         return Inertia::render('Dashboard', [
@@ -68,6 +82,8 @@ class DashboardController extends Controller
             'recentActivities' => $recentActivities,
             'kpis' => $kpis,
             'kpiCategories' => $kpiCategories,
+            'kpiPeriods' => $kpiPeriods,
+            'selectedPeriodId' => $selectedPeriodId ? (int) $selectedPeriodId : null,
         ]);
     }
 }

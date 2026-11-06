@@ -7,7 +7,7 @@ import LetterModal from '@/Components/Letters/LetterModal';
 import ApprovalModal from '@/Components/Letters/ApprovalModal';
 import { Plus, Search, Download, Edit, Trash2, Mail, ArrowDownLeft, ArrowUpRight, CheckSquare } from 'lucide-react';
 
-export default function Internal({ letters, departments = [], filters }) {
+export default function Internal({ letters, departments = [], availableYears = [], filters }) {
     const { user } = usePage().props.auth;
     const canManage = ['super_admin', 'auditor'].includes(user?.role);
     const canApprove = ['super_admin', 'manager_spi'].includes(user?.role);
@@ -18,6 +18,7 @@ export default function Internal({ letters, departments = [], filters }) {
     const [search, setSearch] = useState(filters.search || '');
     const [directionFilter, setDirectionFilter] = useState(filters.direction || '');
     const [confidentialityFilter, setConfidentialityFilter] = useState(filters.confidentiality || '');
+    const [yearFilter, setYearFilter] = useState(availableYears.map(String).includes(String(filters.year)) ? filters.year : '');
 
     const handleFilterChange = (newFilters = {}) => {
         router.get(
@@ -26,6 +27,7 @@ export default function Internal({ letters, departments = [], filters }) {
                 search: newFilters.search !== undefined ? newFilters.search : search,
                 direction: newFilters.direction !== undefined ? newFilters.direction : directionFilter,
                 confidentiality: newFilters.confidentiality !== undefined ? newFilters.confidentiality : confidentialityFilter,
+                year: newFilters.year !== undefined ? newFilters.year : yearFilter,
             },
             { preserveState: true, replace: true }
         );
@@ -61,8 +63,8 @@ export default function Internal({ letters, departments = [], filters }) {
 
             {/* Filter Bar */}
             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                    <div className="relative sm:col-span-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    <div className="relative lg:col-span-2">
                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                         <input
                             type="text"
@@ -75,11 +77,23 @@ export default function Internal({ letters, departments = [], filters }) {
                     </div>
                     <div>
                         <select
+                            value={yearFilter}
+                            onChange={(e) => { setYearFilter(e.target.value); handleFilterChange({ year: e.target.value }); }}
+                            className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
+                        >
+                            <option value="">Semua Tahun</option>
+                            {availableYears.map((yr) => (
+                                <option key={yr} value={yr}>Tahun {yr}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <select
                             value={directionFilter}
                             onChange={(e) => { setDirectionFilter(e.target.value); handleFilterChange({ direction: e.target.value }); }}
                             className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
                         >
-                            <option value="">Semua Arah (Masuk & Keluar)</option>
+                            <option value="">Semua Arah</option>
                             <option value="incoming">Surat Masuk</option>
                             <option value="outgoing">Surat Keluar</option>
                         </select>
@@ -174,7 +188,7 @@ export default function Internal({ letters, departments = [], filters }) {
                                                 ) : (
                                                     <span className="inline-flex items-center text-emerald-600"><ArrowUpRight className="h-3 w-3 me-0.5" /> Keluar</span>
                                                 )}
-                                                {l.agenda_number && <span className="ms-2 text-gray-400">Agd: {l.agenda_number}</span>}
+                                                <span className="ms-2 text-gray-400">{l.letter_date ? new Date(l.letter_date).toLocaleDateString('id-ID') : ''}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">

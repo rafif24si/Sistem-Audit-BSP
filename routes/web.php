@@ -19,6 +19,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Notifikasi Sistem
+    Route::post('/notifications/mark-all-as-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
+    Route::post('/notifications/{id}/mark-as-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
+
     // Dokumen Master SOP
     Route::get('/documents/generate-number', [\App\Http\Controllers\MasterDocumentController::class, 'generateNumber'])->name('documents.generate-number');
     Route::get('/documents/{document}/download', [\App\Http\Controllers\MasterDocumentController::class, 'download'])->name('documents.download');
@@ -63,6 +67,7 @@ Route::middleware('auth')->group(function () {
     // Khusus Super Admin (Kelola Pengguna, Hak Akses & PJS, Data Master & Audit Trail)
     Route::middleware('role:super_admin')->group(function () {
         Route::resource('users', \App\Http\Controllers\UserController::class)->except(['create', 'show', 'edit']);
+        Route::patch('/users/{id}/restore', [\App\Http\Controllers\UserController::class, 'restore'])->name('users.restore');
         Route::get('/permissions', [\App\Http\Controllers\PermissionController::class, 'index'])->name('permissions.index');
         Route::put('/permissions/{user}', [\App\Http\Controllers\PermissionController::class, 'updateUserPermissions'])->name('permissions.update');
         Route::post('/permissions/{user}/pjs', [\App\Http\Controllers\PermissionController::class, 'updateUserPjs'])->name('permissions.update-pjs');
@@ -75,6 +80,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('kpi-categories', \App\Http\Controllers\KpiCategoryController::class)->except(['create', 'show', 'edit']);
         Route::resource('meeting-rooms', \App\Http\Controllers\MeetingRoomController::class)->except(['create', 'show', 'edit']);
         Route::resource('meeting-platforms', \App\Http\Controllers\MeetingPlatformController::class)->except(['create', 'show', 'edit']);
+        Route::resource('employees', \App\Http\Controllers\EmployeeController::class)->except(['create', 'show', 'edit']);
+        Route::resource('kpi-periods', \App\Http\Controllers\KpiPeriodController::class)->except(['create', 'show', 'edit']);
     });
 });
 

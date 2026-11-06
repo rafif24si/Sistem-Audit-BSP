@@ -92,6 +92,17 @@ Kerjakan daftar di bawah ini secara berurutan (1 kotak per siklus Plan -> Execut
 - [x] Refactor Form Pengguna: Buka `UserModal.jsx` (Modul Kelola Pengguna). Hapus bagian pengaturan hak akses dan PJS dari form ini. Kembalikan fungsinya murni hanya untuk manajemen identitas (Nama, Email, Password, Departemen).
 - [x] Pembuatan Halaman Baru: Buat `PermissionController` dan halaman React baru `Pages/Permissions/Index.jsx` (Kelola Hak Akses & PJS). Tambahkan link menu ini di `Sidebar.jsx` (di dalam dropdown Pengaturan Sistem, di bawah Kelola Pengguna).
 - [x] Desain UI Matriks Hak Akses: Di halaman `/permissions`, buat antarmuka di mana Super Admin bisa memilih pengguna, lalu memunculkan tabel Matriks CRUD (Create, Read, Update, Delete) per modul (SOP, Surat Internal, Surat Eksternal, Rapat) menggunakan checkbox.
+  - Sembunyikan dan KUNCI akses modifikasi "Pengaturan Data Master" dari matriks ini agar hanya Super Admin sejati yang bisa mengubahnya.
 - [x] Desain UI & Logika PJS: Pada halaman yang sama, tambahkan form *toggle* "Tetapkan sebagai PJS". Pastikan ada pengecekan di backend (Middleware / Gate) di mana jika tanggal hari ini sudah melewati `pjs_end_date`, maka hak akses PJS tersebut otomatis diabaikan (gugur).
-- [ ] Implementasikan Manajemen Data Master tambahan untuk **Platform Rapat Online (`meeting_platforms`)**. Buat Migration, Model, Controller, dan halaman UI CRUD di dalam dropdown "Pengaturan Sistem" untuk Super Admin.
-- [ ] Hubungkan form modal Jadwal Rapat (`MeetingModal.jsx`) dengan Master Platform Rapat Online. Ubah opsi *dropdown* "Platform Meeting Online" agar mengambil daftar secara dinamis dari tabel `meeting_platforms` yang aktif, bukan lagi di-*hardcode*.
+- [x] Implementasikan Manajemen Data Master tambahan untuk **Platform Rapat Online (`meeting_platforms`)**. Buat Migration, Model, Controller, dan halaman UI CRUD di dalam dropdown "Pengaturan Sistem" untuk Super Admin.
+- [x] Hubungkan form modal Jadwal Rapat (`MeetingModal.jsx`) dengan Master Platform Rapat Online. Ubah opsi *dropdown* "Platform Meeting Online" agar mengambil daftar secara dinamis dari tabel `meeting_platforms` yang aktif, bukan lagi di-*hardcode*.
+
+## Fase 15: Penyempurnaan UX, Audit Trail, Filter & Master Data Baru
+- [x] Buat Manajemen Data Master untuk **Pegawai (`employees`)** dan **Periode KPI (`kpi_periods`)** (Migration, Model, Controller, Request, CRUD UI).
+- [x] Refactor Modul KPI: Ubah struktur database KPI agar berelasi dengan `kpi_periods`. Tambahkan **Filter Tahun** pada Dashboard/KPI view, dan buat UI/fungsi **Report Summary KPI**.
+- [x] Tambahkan fitur dropdown **Filter Tahun** secara dinamis (berdasarkan data tahun yang tersedia di kolom date terkait) pada halaman Index Surat Internal, Surat Eksternal, Lembar Disposisi, dan Manajemen Rapat.
+- [x] Perbaiki Sistem Login & Pengguna: Tolak proses login jika akun berstatus *soft deleted*. Tambahkan indikator visual (baris merah/redup) pada tabel Kelola Pengguna untuk akun yang dinonaktifkan.
+- [x] Refactor Log Aktivitas (Audit Trail): Buat kamus translasi (*accessor/mutator*) agar nama aksi mudah dibaca manusia. Rancang Modal UI untuk membandingkan `old_values` dan `new_values` secara berdampingan (dengan penanganan jika bernilai *null*).
+- [x] Perbaiki *formatting* render Tanggal di tabel UI React agar menggunakan fungsi parsing ke `dd/mm/yyyy`, bukan mencetak format ISO 8601 langsung.
+- [x] Perbarui antarmuka Global: Tambahkan input **Search Menu** di `Sidebar.jsx` dan **Badge Notifikasi** interaktif di `Topbar.jsx`.
+- [x] Integrasikan form peserta rapat (`MeetingInviteesSection.jsx` atau `MeetingModal.jsx`) dengan Master Data Pegawai. Ubah *dropdown* "Pilih Cepat Pengguna" yang sebelumnya mengambil dari tabel `users`, kini mengambil data dari tabel `employees`. Pastikan saat nama pegawai dipilih, emailnya otomatis masuk ke dalam *chip/tag* daftar undangan. Pertahankan juga fitur input email manual untuk tamu luar.

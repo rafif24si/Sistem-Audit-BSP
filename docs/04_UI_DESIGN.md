@@ -24,6 +24,8 @@ Gunakan komponen Badge dengan warna konsisten di seluruh tabel:
   - `Kilat` / `Belum Tindak Lanjut`: Merah (`bg-red-100 text-red-800`)
   - `Segera` / `Dalam Proses`: Biru (`bg-blue-100 text-blue-800`)
   - `Biasa` / `Selesai`: Hijau (`bg-emerald-100 text-emerald-800`)
+  - **Visualisasi Soft Delete (Data Nonaktif):** Baris tabel (*table row*) atau teks nama pengguna yang berstatus dinonaktifkan (deleted_at != null) harus diberikan gaya visual berbeda, seperti teks berwarna merah (`text-red-500`) atau latar belakang redup (`bg-slate-100 opacity-75`).
+- **Komparasi Audit Trail:** Gunakan tata letak berdampingan (*side-by-side grid*) di dalam Modal untuk membandingkan Data Lama (warna merah/kuning) dan Data Baru (warna hijau).
 
 ## 3. Standar Komponen Interaktif
 - **Halaman Login + Captcha:** Form login bersih di tengah layar dengan input Email, Password, serta kotak validasi **Captcha** (bisa berupa gambar kode acak atau *math challenge* sederhana yang divalidasi di backend) sebelum tombol "Masuk" dapat diproses.

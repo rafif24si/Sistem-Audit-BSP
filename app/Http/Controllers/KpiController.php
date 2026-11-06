@@ -58,9 +58,10 @@ class KpiController extends Controller
 
         $kpi = Kpi::create($data);
 
+        $periodYear = $kpi->kpiPeriod?->year ?? '-';
         ActivityLogger::log(
             'CREATE_KPI',
-            "Menambahkan target KPI baru: {$kpi->title} (Target: {$kpi->target_value} {$kpi->unit}, Polarisasi: {$kpi->polarity}, Periode: {$kpi->period})"
+            "Menambahkan target KPI baru: {$kpi->title} (Target: {$kpi->target_value} {$kpi->unit}, Polarisasi: {$kpi->polarity}, Periode Tahun: {$periodYear})"
         );
 
         return redirect()->back()->with('success', "Indikator kinerja '{$kpi->title}' berhasil ditambahkan.");
@@ -77,7 +78,7 @@ class KpiController extends Controller
 
         $oldValues = $kpi->only([
             'title', 'category', 'target_value', 'realization_value', 'unit',
-            'period', 'polarity', 'status', 'notes', 'evidence_path',
+            'kpi_period_id', 'polarity', 'status', 'notes', 'evidence_path',
         ]);
 
         $data = $request->validated();
@@ -97,7 +98,7 @@ class KpiController extends Controller
 
         $newValues = $kpi->only([
             'title', 'category', 'target_value', 'realization_value', 'unit',
-            'period', 'polarity', 'status', 'notes', 'evidence_path',
+            'kpi_period_id', 'polarity', 'status', 'notes', 'evidence_path',
         ]);
 
         ActivityLogger::logChange(

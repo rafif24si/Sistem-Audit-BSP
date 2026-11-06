@@ -94,18 +94,22 @@ export default function Index({ logs, actionTypes, filters }) {
                             className="w-full pl-9 pr-4 py-2 text-sm border-gray-300 rounded-lg focus:border-[#194f2b] focus:ring-[#194f2b]"
                         />
                     </div>
-                    <div className="sm:w-56">
+                    <div className="sm:w-64">
                         <select
                             value={action}
                             onChange={(e) => setAction(e.target.value)}
                             className="w-full py-2 text-sm border-gray-300 rounded-lg focus:border-[#194f2b] focus:ring-[#194f2b]"
                         >
                             <option value="">Semua Tipe Aksi</option>
-                            {actionTypes?.map((act) => (
-                                <option key={act} value={act}>
-                                    {act}
-                                </option>
-                            ))}
+                            {actionTypes?.map((act) => {
+                                const val = typeof act === 'object' ? act.value : act;
+                                const lbl = typeof act === 'object' ? act.label : act;
+                                return (
+                                    <option key={val} value={val}>
+                                        {lbl}
+                                    </option>
+                                );
+                            })}
                         </select>
                     </div>
                     <div className="flex gap-2">
@@ -180,8 +184,9 @@ export default function Index({ logs, actionTypes, filters }) {
                                                     className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${getActionBadge(
                                                         log.action
                                                     )}`}
+                                                    title={log.action}
                                                 >
-                                                    {log.action}
+                                                    {log.action_label || log.action}
                                                 </span>
                                             </td>
                                             <td className="px-5 py-3.5 text-xs text-gray-700 max-w-md truncate" title={log.description}>

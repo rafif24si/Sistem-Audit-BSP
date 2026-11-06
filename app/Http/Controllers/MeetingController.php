@@ -6,6 +6,7 @@ use App\Http\Requests\MeetingMinutesRequest;
 use App\Http\Requests\MeetingRequest;
 use App\Mail\MeetingInvitationMail;
 use App\Mail\MeetingUpdatedMail;
+use App\Models\Employee;
 use App\Models\Meeting;
 use App\Models\MeetingPlatform;
 use App\Models\MeetingRoom;
@@ -36,8 +37,13 @@ class MeetingController extends Controller
         $search = $request->input('search');
         $status = $request->input('status');
         $meetingType = $request->input('meeting_type');
+        $year = $request->input('year');
 
         $query = Meeting::with('creator');
+
+        if ($year) {
+            $query->whereYear('meeting_date_start', $year);
+        }
 
         // Access filter: Auditee can only view meetings they are invited to or created
         if ($user->role === 'auditee') {
@@ -70,20 +76,41 @@ class MeetingController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'email', 'role', 'department_id']);
 
+        $employees = Employee::with('department')
+            ->orderBy('name')
+            ->get(['id', 'name', 'email', 'department_id']);
+
         $meetingTypes = MeetingType::orderBy('name')->get(['id', 'name']);
         $meetingRooms = MeetingRoom::orderBy('name')->get(['id', 'name', 'capacity']);
         $meetingPlatforms = MeetingPlatform::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
+        $availableYears = Meeting::whereNotNull('meeting_date_start')
+            ->selectRaw('YEAR(meeting_date_start) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->map(fn ($y) => (int) $y)
+            ->unique()
+            ->values()
+            ->toArray();
+
+        if (empty($availableYears)) {
+            $availableYears = [(int) date('Y')];
+        }
+
         return Inertia::render('Meetings/Index', [
             'meetings' => $meetings,
             'allUsers' => $allUsers,
+            'employees' => $employees,
             'meetingTypes' => $meetingTypes,
             'meetingRooms' => $meetingRooms,
             'meetingPlatforms' => $meetingPlatforms,
+            'availableYears' => $availableYears,
             'filters' => [
                 'search' => $search,
                 'status' => $status,
                 'meeting_type' => $meetingType,
+                'year' => $year,
             ],
         ]);
     }

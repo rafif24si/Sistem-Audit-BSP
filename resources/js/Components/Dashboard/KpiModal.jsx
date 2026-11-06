@@ -5,8 +5,9 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import { X, Target } from 'lucide-react';
 
-export default function KpiModal({ isOpen, onClose, kpi = null, kpiCategories = [] }) {
+export default function KpiModal({ isOpen, onClose, kpi = null, kpiCategories = [], kpiPeriods = [] }) {
     const isEdit = !!kpi;
+    const defaultPeriodId = kpiPeriods.find((p) => p.is_active)?.id || kpiPeriods[0]?.id || '';
 
     const { data, setData, post, put, processing, errors, reset } = useForm({
         title: '',
@@ -14,7 +15,7 @@ export default function KpiModal({ isOpen, onClose, kpi = null, kpiCategories = 
         target_value: 100,
         realization_value: 0,
         unit: '%',
-        period: 'Tahun 2026',
+        kpi_period_id: defaultPeriodId,
         polarity: 'positive',
         status: 'Dalam Proses',
         notes: '',
@@ -29,7 +30,7 @@ export default function KpiModal({ isOpen, onClose, kpi = null, kpiCategories = 
                 target_value: kpi.target_value ?? 100,
                 realization_value: kpi.realization_value ?? 0,
                 unit: kpi.unit || '%',
-                period: kpi.period || 'Tahun 2026',
+                kpi_period_id: kpi.kpi_period_id || defaultPeriodId,
                 polarity: kpi.polarity || 'positive',
                 status: kpi.status || 'Dalam Proses',
                 notes: kpi.notes || '',
@@ -37,6 +38,7 @@ export default function KpiModal({ isOpen, onClose, kpi = null, kpiCategories = 
             });
         } else {
             reset();
+            setData('kpi_period_id', defaultPeriodId);
         }
     }, [kpi, isOpen]);
 
@@ -115,16 +117,22 @@ export default function KpiModal({ isOpen, onClose, kpi = null, kpiCategories = 
                             <InputError message={errors.category} className="mt-1" />
                         </div>
                         <div>
-                            <InputLabel htmlFor="period" value="Periode Capaian" />
-                            <TextInput
-                                id="period"
-                                value={data.period}
-                                placeholder="Contoh: Tahun 2026 atau Triwulan III 2026"
-                                className="mt-1 block w-full"
-                                onChange={(e) => setData('period', e.target.value)}
+                            <InputLabel htmlFor="kpi_period_id" value="Tahun Periode KPI" />
+                            <select
+                                id="kpi_period_id"
+                                value={data.kpi_period_id}
+                                onChange={(e) => setData('kpi_period_id', e.target.value)}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:text-sm"
                                 required
-                            />
-                            <InputError message={errors.period} className="mt-1" />
+                            >
+                                <option value="">Pilih Tahun Periode</option>
+                                {kpiPeriods.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                        Tahun {p.year} {p.is_active ? '(Aktif Berjalan)' : ''}
+                                    </option>
+                                ))}
+                            </select>
+                            <InputError message={errors.kpi_period_id} className="mt-1" />
                         </div>
                     </div>
 

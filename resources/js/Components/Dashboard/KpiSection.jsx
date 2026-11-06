@@ -2,28 +2,21 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import KpiModal from '@/Components/Dashboard/KpiModal';
 import KpiProgressModal from '@/Components/Dashboard/KpiProgressModal';
-import { Target, Plus, Edit2, Trash2, Award, TrendingUp, AlertCircle, CheckCircle2, Download } from 'lucide-react';
+import KpiReportSummaryModal from '@/Components/Dashboard/KpiReportSummaryModal';
+import { Target, Plus, Edit2, Trash2, Award, TrendingUp, AlertCircle, CheckCircle2, Download, BarChart3 } from 'lucide-react';
 
-export default function KpiSection({ kpis = [], canManage = false, kpiCategories = [] }) {
+export default function KpiSection({ kpis = [], canManage = false, kpiCategories = [], kpiPeriods = [], selectedPeriodId = null }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedKpi, setSelectedKpi] = useState(null);
     const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
     const [selectedProgressKpi, setSelectedProgressKpi] = useState(null);
+    const [isReportOpen, setIsReportOpen] = useState(false);
 
-    const handleCreate = () => {
-        setSelectedKpi(null);
-        setIsModalOpen(true);
-    };
+    const activePeriod = kpiPeriods.find((p) => String(p.id) === String(selectedPeriodId)) || kpiPeriods.find((p) => p.is_active);
 
-    const handleEdit = (kpi) => {
-        setSelectedKpi(kpi);
-        setIsModalOpen(true);
-    };
-
-    const handleOpenProgress = (kpi) => {
-        setSelectedProgressKpi(kpi);
-        setIsProgressModalOpen(true);
-    };
+    const handleCreate = () => { setSelectedKpi(null); setIsModalOpen(true); };
+    const handleEdit = (kpi) => { setSelectedKpi(kpi); setIsModalOpen(true); };
+    const handleOpenProgress = (kpi) => { setSelectedProgressKpi(kpi); setIsProgressModalOpen(true); };
 
     const handleDelete = (kpi) => {
         if (confirm(`Yakin ingin menghapus indikator kinerja '${kpi.title}'?`)) {
@@ -31,33 +24,15 @@ export default function KpiSection({ kpis = [], canManage = false, kpiCategories
         }
     };
 
+    const handlePeriodChange = (e) => {
+        router.get(route('dashboard'), { kpi_period_id: e.target.value }, { preserveState: true, replace: true });
+    };
+
     const getStatusBadge = (status) => {
-        switch (status) {
-            case 'Tercapai':
-                return {
-                    bg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                    icon: CheckCircle2,
-                    bar: 'bg-emerald-600',
-                };
-            case 'Dalam Proses':
-                return {
-                    bg: 'bg-blue-50 text-blue-700 border-blue-200',
-                    icon: TrendingUp,
-                    bar: 'bg-blue-600',
-                };
-            case 'Perlu Perhatian':
-                return {
-                    bg: 'bg-amber-50 text-amber-700 border-amber-200',
-                    icon: AlertCircle,
-                    bar: 'bg-amber-500',
-                };
-            default:
-                return {
-                    bg: 'bg-rose-50 text-rose-700 border-rose-200',
-                    icon: AlertCircle,
-                    bar: 'bg-rose-500',
-                };
-        }
+        if (status === 'Tercapai') return { bg: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: CheckCircle2, bar: 'bg-emerald-600' };
+        if (status === 'Dalam Proses') return { bg: 'bg-blue-50 text-blue-700 border-blue-200', icon: TrendingUp, bar: 'bg-blue-600' };
+        if (status === 'Perlu Perhatian') return { bg: 'bg-amber-50 text-amber-700 border-amber-200', icon: AlertCircle, bar: 'bg-amber-500' };
+        return { bg: 'bg-rose-50 text-rose-700 border-rose-200', icon: AlertCircle, bar: 'bg-rose-500' };
     };
 
     return (
@@ -77,15 +52,40 @@ export default function KpiSection({ kpis = [], canManage = false, kpiCategories
                     </div>
                 </div>
 
-                {canManage && (
+                <div className="flex flex-wrap items-center gap-2">
+                    {kpiPeriods.length > 0 && (
+                        <select
+                            value={selectedPeriodId || ''}
+                            onChange={handlePeriodChange}
+                            className="rounded-lg border-gray-300 text-xs font-semibold text-gray-700 py-1.5 focus:border-emerald-600 focus:ring-emerald-600"
+                            title="Filter Tahun Periode KPI"
+                        >
+                            {kpiPeriods.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                    Tahun {p.year} {p.is_active ? '(Aktif)' : ''}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                     <button
-                        onClick={handleCreate}
-                        className="inline-flex items-center self-start sm:self-auto rounded-lg bg-[#194f2b] px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#123b20] transition"
+                        type="button"
+                        onClick={() => setIsReportOpen(true)}
+                        className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-2xs hover:bg-gray-50 transition"
+                        title="Buka Ringkasan Laporan KPI"
                     >
-                        <Plus className="h-3.5 w-3.5 me-1.5" />
-                        Tambah Target KPI
+                        <BarChart3 className="h-3.5 w-3.5 me-1 text-emerald-700" />
+                        Report Summary
                     </button>
-                )}
+                    {canManage && (
+                        <button
+                            onClick={handleCreate}
+                            className="inline-flex items-center rounded-lg bg-[#194f2b] px-3 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-[#123b20] transition"
+                        >
+                            <Plus className="h-3.5 w-3.5 me-1" />
+                            Tambah Target KPI
+                        </button>
+                    )}
+                </div>
             </div>
 
             {kpis.length === 0 ? (
@@ -124,7 +124,7 @@ export default function KpiSection({ kpis = [], canManage = false, kpiCategories
                                                 {kpi.polarity === 'negative' ? 'Negatif (Min)' : 'Positif (Maks)'}
                                             </span>
                                             <span className="text-[10px] text-gray-400 font-medium">
-                                                {kpi.period}
+                                                {kpi.kpi_period?.year ? `Tahun ${kpi.kpi_period.year}` : (kpi.period || '')}
                                             </span>
                                         </div>
                                         <div className="flex items-center space-x-1">
@@ -217,12 +217,20 @@ export default function KpiSection({ kpis = [], canManage = false, kpiCategories
                 onClose={() => setIsModalOpen(false)}
                 kpi={selectedKpi}
                 kpiCategories={kpiCategories}
+                kpiPeriods={kpiPeriods}
             />
 
             <KpiProgressModal
                 isOpen={isProgressModalOpen}
                 onClose={() => setIsProgressModalOpen(false)}
                 kpi={selectedProgressKpi}
+            />
+
+            <KpiReportSummaryModal
+                isOpen={isReportOpen}
+                onClose={() => setIsReportOpen(false)}
+                kpis={kpis}
+                periodYear={activePeriod?.year}
             />
         </div>
     );

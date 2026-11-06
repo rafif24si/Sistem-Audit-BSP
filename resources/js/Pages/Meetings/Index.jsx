@@ -6,7 +6,7 @@ import Pagination from '@/Components/Pagination';
 import MeetingModal from '@/Components/Meetings/MeetingModal';
 import { Plus, Search, Calendar, MapPin, Video, Users, FileText, Download, Edit, Trash2 } from 'lucide-react';
 
-export default function Index({ meetings, allUsers, meetingTypes = [], meetingRooms = [], meetingPlatforms = [], filters }) {
+export default function Index({ meetings, allUsers = [], employees = [], meetingTypes = [], meetingRooms = [], meetingPlatforms = [], availableYears = [], filters }) {
     const { user } = usePage().props.auth;
     const canManage = ['super_admin', 'manager_spi'].includes(user?.role);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,6 +14,7 @@ export default function Index({ meetings, allUsers, meetingTypes = [], meetingRo
     const [search, setSearch] = useState(filters.search || '');
     const [statusFilter, setStatusFilter] = useState(filters.status || '');
     const [typeFilter, setTypeFilter] = useState(filters.meeting_type || '');
+    const [yearFilter, setYearFilter] = useState(availableYears.map(String).includes(String(filters.year)) ? filters.year : '');
 
     const handleFilterChange = (newFilters = {}) => {
         router.get(
@@ -22,15 +23,14 @@ export default function Index({ meetings, allUsers, meetingTypes = [], meetingRo
                 search: newFilters.search !== undefined ? newFilters.search : search,
                 status: newFilters.status !== undefined ? newFilters.status : statusFilter,
                 meeting_type: newFilters.meeting_type !== undefined ? newFilters.meeting_type : typeFilter,
+                year: newFilters.year !== undefined ? newFilters.year : yearFilter,
             },
             { preserveState: true, replace: true }
         );
     };
 
     const handleDelete = (meeting) => {
-        if (confirm(`Yakin ingin membatalkan dan menghapus rapat '${meeting.title}'?`)) {
-            router.delete(route('meetings.destroy', meeting.id));
-        }
+        if (confirm(`Yakin ingin membatalkan dan menghapus rapat '${meeting.title}'?`)) router.delete(route('meetings.destroy', meeting.id));
     };
 
     return (
@@ -57,8 +57,8 @@ export default function Index({ meetings, allUsers, meetingTypes = [], meetingRo
 
             {/* Filter Bar */}
             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                    <div className="relative sm:col-span-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    <div className="relative lg:col-span-2">
                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                         <input
                             type="text"
@@ -71,11 +71,23 @@ export default function Index({ meetings, allUsers, meetingTypes = [], meetingRo
                     </div>
                     <div>
                         <select
+                            value={yearFilter}
+                            onChange={(e) => { setYearFilter(e.target.value); handleFilterChange({ year: e.target.value }); }}
+                            className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
+                        >
+                            <option value="">Semua Tahun</option>
+                            {availableYears.map((yr) => (
+                                <option key={yr} value={yr}>Tahun {yr}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <select
                             value={statusFilter}
                             onChange={(e) => { setStatusFilter(e.target.value); handleFilterChange({ status: e.target.value }); }}
                             className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
                         >
-                            <option value="">Semua Status Rapat</option>
+                            <option value="">Semua Status</option>
                             <option value="Terjadwal">Terjadwal</option>
                             <option value="Selesai">Selesai</option>
                             <option value="Dibatalkan">Dibatalkan</option>
@@ -88,18 +100,9 @@ export default function Index({ meetings, allUsers, meetingTypes = [], meetingRo
                             className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
                         >
                             <option value="">Semua Jenis Rapat</option>
-                            {meetingTypes && meetingTypes.length > 0 ? (
-                                meetingTypes.map((mt) => (
-                                    <option key={mt.id || mt.name} value={mt.name}>{mt.name}</option>
-                                ))
-                            ) : (
-                                <>
-                                    <option value="Entry Meeting">Entry Meeting</option>
-                                    <option value="Exit Meeting">Exit Meeting</option>
-                                    <option value="Rapat Internal SPI">Rapat Internal SPI</option>
-                                    <option value="Rapat Pimpinan">Rapat Pimpinan</option>
-                                </>
-                            )}
+                            {meetingTypes?.map((mt) => (
+                                <option key={mt.id || mt.name} value={mt.name}>{mt.name}</option>
+                            ))}
                         </select>
                     </div>
                 </div>
@@ -179,8 +182,8 @@ export default function Index({ meetings, allUsers, meetingTypes = [], meetingRo
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-600">
                                                 <div className="font-semibold text-gray-800">
-                                                    {m.meeting_date_start}
-                                                    {m.meeting_date_end && m.meeting_date_end !== m.meeting_date_start ? ` s/d ${m.meeting_date_end}` : ''}
+                                                    {m.meeting_date_start ? new Date(m.meeting_date_start).toLocaleDateString('id-ID') : '-'}
+                                                    {m.meeting_date_end && m.meeting_date_end !== m.meeting_date_start ? ` s/d ${new Date(m.meeting_date_end).toLocaleDateString('id-ID')}` : ''}
                                                 </div>
                                                 <div className="mt-0.5 text-gray-500">{m.start_time} - {m.end_time || 'Selesai'} WIB</div>
                                             </td>
@@ -237,6 +240,7 @@ export default function Index({ meetings, allUsers, meetingTypes = [], meetingRo
                 meetingTypes={meetingTypes}
                 meetingRooms={meetingRooms}
                 meetingPlatforms={meetingPlatforms}
+                employees={employees}
             />
         </AuthenticatedLayout>
     );

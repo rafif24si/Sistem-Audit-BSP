@@ -17,7 +17,7 @@ class Kpi extends Model
         'target_value',
         'realization_value',
         'unit',
-        'period',
+        'kpi_period_id',
         'polarity',
         'status',
         'notes',
@@ -48,6 +48,11 @@ class Kpi extends Model
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by')->withTrashed();
+    }
+
+    public function kpiPeriod(): BelongsTo
+    {
+        return $this->belongsTo(KpiPeriod::class, 'kpi_period_id')->withTrashed();
     }
 
     /**

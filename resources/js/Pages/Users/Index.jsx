@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 import Pagination from '@/Components/Pagination';
 import UserModal from '@/Components/Users/UserModal';
-import { Plus, Search, Edit, Trash2, Users as UsersIcon, ShieldCheck, Briefcase } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, RotateCcw, Users as UsersIcon, ShieldCheck, Briefcase } from 'lucide-react';
 
 export default function Index({ users = { data: [] }, departments = [], filters = {} }) {
     const currentUser = usePage().props.auth?.user || {};
@@ -33,6 +33,12 @@ export default function Index({ users = { data: [] }, departments = [], filters 
         }
         if (confirm(`Yakin ingin menonaktifkan pengguna ${targetUser.name}?`)) {
             router.delete(route('users.destroy', targetUser.id));
+        }
+    };
+
+    const handleRestore = (targetUser) => {
+        if (confirm(`Aktifkan kembali akun pengguna ${targetUser.name}?`)) {
+            router.patch(route('users.restore', targetUser.id));
         }
     };
 
@@ -135,32 +141,62 @@ export default function Index({ users = { data: [] }, departments = [], filters 
                                     </td>
                                 </tr>
                             ) : (
-                                userList.map((u) => (
-                                    <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                                            <div className="inline-flex items-center space-x-2">
-                                                <button
-                                                    onClick={() => { setSelectedUser(u); setIsModalOpen(true); }}
-                                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
-                                                    title="Ubah Pengguna"
-                                                >
-                                                    <Edit className="h-4 w-4" />
-                                                </button>
-                                                {u.id !== currentUser.id && (
-                                                    <button
-                                                        onClick={() => handleDelete(u)}
-                                                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
-                                                        title="Hapus Pengguna"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="font-semibold text-gray-900">{u.name}</div>
-                                            <div className="text-xs text-gray-500 font-mono mt-0.5">{u.email}</div>
-                                        </td>
+                                userList.map((u) => {
+                                    const isTrashed = !!u.deleted_at;
+                                    return (
+                                        <tr
+                                            key={u.id}
+                                            className={
+                                                isTrashed
+                                                    ? 'bg-red-50/60 hover:bg-red-100/60 transition-colors'
+                                                    : 'hover:bg-slate-50/80 transition-colors'
+                                            }
+                                        >
+                                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                                                <div className="inline-flex items-center space-x-2">
+                                                    {isTrashed ? (
+                                                        <button
+                                                            onClick={() => handleRestore(u)}
+                                                            className="p-1.5 text-emerald-600 hover:bg-emerald-100 rounded-lg"
+                                                            title="Aktifkan Kembali Pengguna"
+                                                        >
+                                                            <RotateCcw className="h-4 w-4" />
+                                                        </button>
+                                                    ) : (
+                                                        <>
+                                                            <button
+                                                                onClick={() => { setSelectedUser(u); setIsModalOpen(true); }}
+                                                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"
+                                                                title="Ubah Pengguna"
+                                                            >
+                                                                <Edit className="h-4 w-4" />
+                                                            </button>
+                                                            {u.id !== currentUser.id && (
+                                                                <button
+                                                                    onClick={() => handleDelete(u)}
+                                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"
+                                                                    title="Hapus / Nonaktifkan Pengguna"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </button>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center space-x-2">
+                                                    <span className={`font-semibold ${isTrashed ? 'text-red-700' : 'text-gray-900'}`}>
+                                                        {u.name}
+                                                    </span>
+                                                    {isTrashed && (
+                                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800 border border-red-300">
+                                                            Nonaktif
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className={`text-xs font-mono mt-0.5 ${isTrashed ? 'text-red-400' : 'text-gray-500'}`}>{u.email}</div>
+                                            </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex flex-col items-start gap-1">
                                                 {getRoleBadge(u.role)}
@@ -184,7 +220,8 @@ export default function Index({ users = { data: [] }, departments = [], filters 
                                             {new Date(u.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })}
                                         </td>
                                     </tr>
-                                ))
+                                );
+                            })
                             )}
                         </tbody>
                     </table>

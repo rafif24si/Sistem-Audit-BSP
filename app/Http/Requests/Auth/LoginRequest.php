@@ -89,6 +89,15 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        // Validasi Akun Nonaktif: Tolak login jika user berstatus soft deleted
+        $user = \App\Models\User::withTrashed()->where('email', $this->email)->first();
+        if ($user && $user->trashed()) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda telah dinonaktifkan. Silakan hubungi Super Admin.',
+            ]);
+        }
+
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 

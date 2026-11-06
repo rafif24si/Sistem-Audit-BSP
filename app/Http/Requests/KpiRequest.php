@@ -20,7 +20,7 @@ class KpiRequest extends FormRequest
             'target_value' => ['required', 'numeric', 'min:0'],
             'realization_value' => ['required', 'numeric', 'min:0'],
             'unit' => ['required', 'string', 'max:50'],
-            'period' => ['required', 'string', 'max:50'],
+            'kpi_period_id' => ['required', 'exists:kpi_periods,id'],
             'polarity' => ['required', Rule::in(['positive', 'negative'])],
             'status' => [
                 'required',
@@ -45,7 +45,8 @@ class KpiRequest extends FormRequest
             'target_value.required' => 'Nilai target wajib diisi.',
             'realization_value.required' => 'Nilai realisasi capaian saat ini wajib diisi.',
             'unit.required' => 'Satuan ukuran indikator wajib diisi (misal %, Hari).',
-            'period.required' => 'Periode capaian KPI wajib diisi (misal Tahun 2026).',
+            'kpi_period_id.required' => 'Tahun periode capaian KPI wajib dipilih.',
+            'kpi_period_id.exists' => 'Periode KPI yang dipilih tidak valid.',
             'polarity.required' => 'Polaritas pergerakan target KPI wajib ditentukan.',
             'status.required' => 'Status capaian indikator wajib dipilih.',
             'evidence.mimes' => 'Format file bukti harus berupa pdf, doc, docx, xls, xlsx, jpg, atau png.',

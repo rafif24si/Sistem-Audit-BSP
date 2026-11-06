@@ -28,7 +28,7 @@ class UserController extends Controller
         $role = $request->input('role');
         $departmentId = $request->input('department_id');
 
-        $query = User::with('department');
+        $query = User::withTrashed()->with('department');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -148,5 +148,26 @@ class UserController extends Controller
 
         return redirect()->back()
             ->with('success', "Akun pengguna {$userName} berhasil dihapus.");
+    }
+
+    /**
+     * Restore a soft-deleted user.
+     */
+    public function restore(int $id): RedirectResponse
+    {
+        if (Auth::user()?->role !== 'super_admin') {
+            abort(403, 'Akses Ditolak.');
+        }
+
+        $user = User::withTrashed()->findOrFail($id);
+        $user->restore();
+
+        ActivityLogger::log(
+            'RESTORE_USER',
+            "Mengaktifkan kembali akun pengguna: {$user->name}"
+        );
+
+        return redirect()->back()
+            ->with('success', "Akun pengguna {$user->name} berhasil diaktifkan kembali.");
     }
 }

@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { Menu, User, LogOut, ChevronDown, Building2 } from 'lucide-react';
+import NotificationDropdown from '@/Components/Notifications/NotificationDropdown';
 
 export default function Topbar({ onMenuClick }) {
-    const user = usePage().props.auth.user;
+    const { auth } = usePage().props;
+    const user = auth.user;
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -51,6 +53,10 @@ export default function Topbar({ onMenuClick }) {
             </div>
 
             <div className="flex items-center space-x-3">
+                {/* Notification Dropdown Component */}
+                <NotificationDropdown />
+
+                {/* User Dropdown */}
                 <div className="relative" ref={dropdownRef}>
                     <button
                         type="button"

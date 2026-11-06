@@ -151,3 +151,20 @@
 
 *(Revisi pada Tabel `meetings`)*: 
 - Ubah tipe kolom `platform` yang tadinya `enum` menjadi `varchar(255), nullable` (untuk menampung nama platform dari Data Master jika mode 'Online', atau bernilai 'Tatap Muka'/null jika 'Offline').
+
+## 12. Tabel `employees` (Data Master Pegawai PT BSP - Referensi Global)
+- `id`: bigint unsigned, PK
+- `name`: varchar(255)
+- `email`: varchar(255), unique
+- `department_id`: foreignId (`departments.id`)
+- `timestamps` & `softDeletes`
+
+## 13. Tabel `kpi_periods` (Data Master Periode/Tahun KPI)
+- `id`: bigint unsigned, PK
+- `year`: varchar(10), unique (Contoh: "2025", "2026")
+- `is_active`: boolean, default: true
+- `timestamps` & `softDeletes`
+
+*(Revisi pada Tabel 8. `kpis`)*: 
+- Hapus kolom `period` (varchar).
+- Tambahkan kolom `kpi_period_id`: foreignId (`kpi_periods.id`) untuk mengambil tahun secara dinamis.

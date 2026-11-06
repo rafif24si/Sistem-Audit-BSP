@@ -37,7 +37,16 @@ class ActivityLogController extends Controller
 
         $logs = $query->latest('created_at')->paginate(15)->withQueryString();
 
-        $actionTypes = ActivityLog::select('action')->distinct()->pluck('action');
+        $dict = ActivityLog::actionDictionary();
+        $actionTypes = ActivityLog::select('action')
+            ->distinct()
+            ->pluck('action')
+            ->map(function ($action) use ($dict) {
+                return [
+                    'value' => $action,
+                    'label' => $dict[$action] ?? ucwords(strtolower(str_replace('_', ' ', (string) $action))),
+                ];
+            });
 
         return Inertia::render('ActivityLogs/Index', [
             'logs' => $logs,

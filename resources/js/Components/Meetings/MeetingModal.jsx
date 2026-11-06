@@ -8,7 +8,7 @@ import MeetingModeLocationSection from '@/Components/Meetings/MeetingModeLocatio
 import MeetingDateTimeSection from '@/Components/Meetings/MeetingDateTimeSection';
 import { X, Calendar } from 'lucide-react';
 
-export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers = [], meetingTypes = [], meetingRooms = [], meetingPlatforms = [] }) {
+export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers = [], employees = [], meetingTypes = [], meetingRooms = [], meetingPlatforms = [] }) {
     const isEdit = !!meeting;
     const defaultPlatform = meetingPlatforms[0]?.name || 'Zoom Meeting';
 
@@ -184,6 +184,7 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
 
                     <MeetingInviteesSection
                         allUsers={allUsers}
+                        employees={employees}
                         invitees={data.invitees}
                         addInvitee={addInvitee}
                         removeInvitee={removeInvitee}

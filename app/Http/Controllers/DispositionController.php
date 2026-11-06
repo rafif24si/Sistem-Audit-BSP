@@ -33,8 +33,18 @@ class DispositionController extends Controller
         $search = $request->input('search');
         $urgency = $request->input('urgency');
         $status = $request->input('status');
+        $year = $request->input('year');
 
         $query = Disposition::with(['letter', 'sender', 'recipient']);
+
+        if ($year) {
+            $query->where(function ($q) use ($year) {
+                $q->whereHas('letter', function ($lq) use ($year) {
+                    $lq->whereYear('letter_date', $year);
+                })
+                ->orWhereYear('due_date', $year);
+            });
+        }
 
         if ($user->role === 'auditee' || $tab === 'received') {
             $query->where('to_user_id', $user->id);
@@ -94,15 +104,40 @@ class DispositionController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'role', 'department_id']);
 
+        // Pluck distinct available years from associated letters and due date (not created_at)
+        $letterYears = Letter::whereHas('dispositions')
+            ->whereNotNull('letter_date')
+            ->selectRaw('YEAR(letter_date) as year')
+            ->distinct()
+            ->pluck('year');
+
+        $dueYears = Disposition::whereNotNull('due_date')
+            ->selectRaw('YEAR(due_date) as year')
+            ->distinct()
+            ->pluck('year');
+
+        $availableYears = $letterYears->merge($dueYears)
+            ->map(fn ($y) => (int) $y)
+            ->unique()
+            ->sortDesc()
+            ->values()
+            ->toArray();
+
+        if (empty($availableYears)) {
+            $availableYears = [(int) date('Y')];
+        }
+
         return Inertia::render('Dispositions/Index', [
             'dispositions' => $dispositions,
             'incomingLetters' => $incomingLetters,
             'staffUsers' => $staffUsers,
+            'availableYears' => $availableYears,
             'filters' => [
                 'tab' => $tab,
                 'search' => $search,
                 'urgency' => $urgency,
                 'status' => $status,
+                'year' => $year,
             ],
         ]);
     }

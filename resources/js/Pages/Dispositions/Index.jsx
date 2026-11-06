@@ -7,7 +7,7 @@ import DispositionModal from '@/Components/Dispositions/DispositionModal';
 import CompleteDispositionModal from '@/Components/Dispositions/CompleteDispositionModal';
 import { Plus, Search, CheckSquare, Edit, Trash2, CheckCircle2 } from 'lucide-react';
 
-export default function Index({ dispositions, incomingLetters, staffUsers, filters }) {
+export default function Index({ dispositions, incomingLetters, staffUsers, availableYears = [], filters }) {
     const user = usePage().props.auth.user;
     const canManage = ['super_admin', 'manager_spi'].includes(user?.role);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -17,6 +17,7 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
     const [search, setSearch] = useState(filters.search || '');
     const [urgencyFilter, setUrgencyFilter] = useState(filters.urgency || '');
     const [statusFilter, setStatusFilter] = useState(filters.status || '');
+    const [yearFilter, setYearFilter] = useState(availableYears.map(String).includes(String(filters.year)) ? filters.year : '');
     const activeTab = filters.tab || (canManage ? 'all' : 'received');
 
     const handleFilterChange = (newFilters = {}) => {
@@ -27,6 +28,7 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
                 search: newFilters.search !== undefined ? newFilters.search : search,
                 urgency: newFilters.urgency !== undefined ? newFilters.urgency : urgencyFilter,
                 status: newFilters.status !== undefined ? newFilters.status : statusFilter,
+                year: newFilters.year !== undefined ? newFilters.year : yearFilter,
             },
             { preserveState: true, replace: true }
         );
@@ -81,8 +83,8 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
             )}
 
             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                    <div className="relative sm:col-span-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    <div className="relative lg:col-span-2">
                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                         <input
                             type="text"
@@ -95,11 +97,23 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
                     </div>
                     <div>
                         <select
+                            value={yearFilter}
+                            onChange={(e) => { setYearFilter(e.target.value); handleFilterChange({ year: e.target.value }); }}
+                            className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
+                        >
+                            <option value="">Semua Tahun</option>
+                            {availableYears.map((yr) => (
+                                <option key={yr} value={yr}>Tahun {yr}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <select
                             value={urgencyFilter}
                             onChange={(e) => { setUrgencyFilter(e.target.value); handleFilterChange({ urgency: e.target.value }); }}
                             className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
                         >
-                            <option value="">Semua Derajat (Urgency)</option>
+                            <option value="">Semua Derajat</option>
                             <option value="Biasa">Biasa</option>
                             <option value="Segera">Segera</option>
                             <option value="Kilat">Kilat</option>
@@ -111,7 +125,7 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
                             onChange={(e) => { setStatusFilter(e.target.value); handleFilterChange({ status: e.target.value }); }}
                             className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
                         >
-                            <option value="">Semua Status Tindak Lanjut</option>
+                            <option value="">Semua Status</option>
                             <option value="pending">Belum Diproses</option>
                             <option value="in_progress">Dalam Proses</option>
                             <option value="completed">Selesai</option>
@@ -199,7 +213,7 @@ export default function Index({ dispositions, incomingLetters, staffUsers, filte
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <StatusBadge status={disp.urgency} type="urgency" />
-                                                <div className="text-xs text-gray-600 mt-1">Tenggat: <span className="font-semibold">{disp.due_date}</span></div>
+                                                <div className="text-xs text-gray-600 mt-1">Tenggat: <span className="font-semibold">{disp.due_date ? new Date(disp.due_date).toLocaleDateString('id-ID') : '-'}</span></div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <StatusBadge status={disp.status} type="disposition_status" />

@@ -8,7 +8,7 @@ import FollowUpModal from '@/Components/Letters/FollowUpModal';
 import ApprovalModal from '@/Components/Letters/ApprovalModal';
 import { Plus, Search, Download, Edit, Trash2, Send, CheckCircle2, ArrowDownLeft, ArrowUpRight, CheckSquare } from 'lucide-react';
 
-export default function External({ letters, departments = [], filters }) {
+export default function External({ letters, departments = [], availableYears = [], filters }) {
     const { user } = usePage().props.auth;
     const canManage = ['super_admin', 'auditor'].includes(user?.role);
     const canApprove = ['super_admin', 'manager_spi'].includes(user?.role);
@@ -20,6 +20,7 @@ export default function External({ letters, departments = [], filters }) {
     const [search, setSearch] = useState(filters.search || '');
     const [followupFilter, setFollowupFilter] = useState(filters.followup_status || '');
     const [directionFilter, setDirectionFilter] = useState(filters.direction || '');
+    const [yearFilter, setYearFilter] = useState(availableYears.map(String).includes(String(filters.year)) ? filters.year : '');
 
     const handleFilterChange = (newFilters = {}) => {
         router.get(
@@ -28,22 +29,18 @@ export default function External({ letters, departments = [], filters }) {
                 search: newFilters.search !== undefined ? newFilters.search : search,
                 followup_status: newFilters.followup_status !== undefined ? newFilters.followup_status : followupFilter,
                 direction: newFilters.direction !== undefined ? newFilters.direction : directionFilter,
+                year: newFilters.year !== undefined ? newFilters.year : yearFilter,
             },
             { preserveState: true, replace: true }
         );
     };
 
     const handleDelete = (letter) => {
-        if (confirm(`Hapus surat eksternal nomor ${letter.letter_number}?`)) {
-            router.delete(route('letters.destroy', letter.id));
-        }
+        if (confirm(`Hapus surat eksternal nomor ${letter.letter_number}?`)) router.delete(route('letters.destroy', letter.id));
     };
 
-    const canFollowUp = (letter) => {
-        if (['super_admin', 'manager_spi', 'auditor'].includes(user?.role)) return true;
-        if (user?.role === 'auditee' && letter.recipient_department_id === user.department_id) return true;
-        return false;
-    };
+    const canFollowUp = (letter) => ['super_admin', 'manager_spi', 'auditor'].includes(user?.role) ||
+        (user?.role === 'auditee' && letter.recipient_department_id === user.department_id);
 
     return (
         <AuthenticatedLayout
@@ -69,8 +66,8 @@ export default function External({ letters, departments = [], filters }) {
 
             {/* Filter Bar */}
             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                    <div className="relative sm:col-span-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    <div className="relative lg:col-span-2">
                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                         <input
                             type="text"
@@ -83,11 +80,23 @@ export default function External({ letters, departments = [], filters }) {
                     </div>
                     <div>
                         <select
+                            value={yearFilter}
+                            onChange={(e) => { setYearFilter(e.target.value); handleFilterChange({ year: e.target.value }); }}
+                            className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
+                        >
+                            <option value="">Semua Tahun</option>
+                            {availableYears.map((yr) => (
+                                <option key={yr} value={yr}>Tahun {yr}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <select
                             value={followupFilter}
                             onChange={(e) => { setFollowupFilter(e.target.value); handleFilterChange({ followup_status: e.target.value }); }}
                             className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
                         >
-                            <option value="">Semua Status Follow-Up</option>
+                            <option value="">Semua Follow-Up</option>
                             <option value="pending">Belum Tindak Lanjut</option>
                             <option value="in_progress">Dalam Proses</option>
                             <option value="completed">Selesai</option>
@@ -100,7 +109,7 @@ export default function External({ letters, departments = [], filters }) {
                             onChange={(e) => { setDirectionFilter(e.target.value); handleFilterChange({ direction: e.target.value }); }}
                             className="w-full rounded-lg border-gray-300 text-sm focus:border-emerald-600 focus:ring-emerald-600"
                         >
-                            <option value="">Semua Arah (Masuk/Keluar)</option>
+                            <option value="">Semua Arah</option>
                             <option value="incoming">Surat Masuk</option>
                             <option value="outgoing">Surat Keluar</option>
                         </select>
@@ -192,6 +201,7 @@ export default function External({ letters, departments = [], filters }) {
                                                 ) : (
                                                     <span className="inline-flex items-center text-emerald-600"><ArrowUpRight className="h-3 w-3 me-0.5" /> Keluar</span>
                                                 )}
+                                                <span className="ms-2 text-gray-400">{l.letter_date ? new Date(l.letter_date).toLocaleDateString('id-ID') : ''}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">

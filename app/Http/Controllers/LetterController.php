@@ -33,6 +33,7 @@ class LetterController extends Controller
         $confidentiality = $request->input('confidentiality');
         $letterTypeCode = $request->input('letter_type_code');
         $approvalStatus = $request->input('approval_status');
+        $year = $request->input('year');
 
         $query = Letter::with(['creator', 'recipientDepartment', 'approver'])
             ->where('scope', 'internal');
@@ -44,6 +45,10 @@ class LetterController extends Controller
             } else {
                 $query->whereRaw('1 = 0');
             }
+        }
+
+        if ($year) {
+            $query->whereYear('letter_date', $year);
         }
 
         if ($direction) {
@@ -74,15 +79,38 @@ class LetterController extends Controller
         $letters = $query->latest('letter_date')->paginate(10)->withQueryString();
         $departments = Department::orderBy('name')->get(['id', 'code', 'name']);
 
+        $yearsQuery = Letter::where('scope', 'internal')->whereNotNull('letter_date');
+        if ($user->role === 'auditee') {
+            if ($user->department_id) {
+                $yearsQuery->where('recipient_department_id', $user->department_id);
+            } else {
+                $yearsQuery->whereRaw('1 = 0');
+            }
+        }
+
+        $availableYears = $yearsQuery->selectRaw('YEAR(letter_date) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->map(fn ($y) => (int) $y)
+            ->unique()
+            ->values()
+            ->toArray();
+        if (empty($availableYears)) {
+            $availableYears = [(int) date('Y')];
+        }
+
         return Inertia::render('Letters/Internal', [
             'letters' => $letters,
             'departments' => $departments,
+            'availableYears' => $availableYears,
             'filters' => [
                 'direction' => $direction,
                 'search' => $search,
                 'confidentiality' => $confidentiality,
                 'letter_type_code' => $letterTypeCode,
                 'approval_status' => $approvalStatus,
+                'year' => $year,
             ],
         ]);
     }
@@ -98,6 +126,7 @@ class LetterController extends Controller
         $followupStatus = $request->input('followup_status');
         $confidentiality = $request->input('confidentiality');
         $approvalStatus = $request->input('approval_status');
+        $year = $request->input('year');
 
         $query = Letter::with(['creator', 'recipientDepartment', 'approver'])
             ->where('scope', 'external');
@@ -109,6 +138,10 @@ class LetterController extends Controller
             } else {
                 $query->whereRaw('1 = 0');
             }
+        }
+
+        if ($year) {
+            $query->whereYear('letter_date', $year);
         }
 
         if ($direction) {
@@ -139,15 +172,38 @@ class LetterController extends Controller
         $letters = $query->latest('letter_date')->paginate(10)->withQueryString();
         $departments = Department::orderBy('name')->get(['id', 'code', 'name']);
 
+        $yearsQuery = Letter::where('scope', 'external')->whereNotNull('letter_date');
+        if ($user->role === 'auditee') {
+            if ($user->department_id) {
+                $yearsQuery->where('recipient_department_id', $user->department_id);
+            } else {
+                $yearsQuery->whereRaw('1 = 0');
+            }
+        }
+
+        $availableYears = $yearsQuery->selectRaw('YEAR(letter_date) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->map(fn ($y) => (int) $y)
+            ->unique()
+            ->values()
+            ->toArray();
+        if (empty($availableYears)) {
+            $availableYears = [(int) date('Y')];
+        }
+
         return Inertia::render('Letters/External', [
             'letters' => $letters,
             'departments' => $departments,
+            'availableYears' => $availableYears,
             'filters' => [
                 'direction' => $direction,
                 'search' => $search,
                 'followup_status' => $followupStatus,
                 'confidentiality' => $confidentiality,
                 'approval_status' => $approvalStatus,
+                'year' => $year,
             ],
         ]);
     }

@@ -5,6 +5,7 @@ import { Mail, Plus, X, UserCheck } from 'lucide-react';
 
 export default function MeetingInviteesSection({
     allUsers = [],
+    employees = [],
     invitees = [],
     addInvitee,
     removeInvitee,
@@ -12,6 +13,7 @@ export default function MeetingInviteesSection({
 }) {
     const [inputVal, setInputVal] = useState('');
     const [inputError, setInputError] = useState('');
+    const personList = employees && employees.length > 0 ? employees : allUsers;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -115,13 +117,13 @@ export default function MeetingInviteesSection({
                 )}
             </div>
 
-            {/* Quick-Add Internal User Email Dropdown */}
-            {allUsers && allUsers.length > 0 && (
+            {/* Quick-Add Employee Email Dropdown */}
+            {personList && personList.length > 0 && (
                 <div className="pt-1 border-t border-gray-200/80">
                     <div className="flex items-center gap-2">
-                        <UserCheck className="h-3.5 w-3.5 text-gray-400" />
-                        <span className="text-[11px] font-semibold text-gray-600">
-                            Pilih Cepat Pengguna Internal PT BSP:
+                        <UserCheck className="h-3.5 w-3.5 text-emerald-600" />
+                        <span className="text-[11px] font-semibold text-gray-700">
+                            Pilih Cepat Pegawai (Master Pegawai PT BSP):
                         </span>
                         <select
                             onChange={(e) => {
@@ -132,12 +134,12 @@ export default function MeetingInviteesSection({
                             }}
                             className="flex-1 rounded-md border-gray-300 py-1 px-2 text-xs text-gray-700 shadow-2xs focus:border-emerald-600 focus:ring-emerald-600"
                         >
-                            <option value="">-- Tambah dari akun terdaftar --</option>
-                            {allUsers
-                                .filter((u) => u.email && !invitees.includes(u.email))
-                                .map((u) => (
-                                    <option key={u.id} value={u.email}>
-                                        {u.name} &lt;{u.email}&gt; ({u.department?.code || 'BSP'})
+                            <option value="">-- Tambah dari Master Pegawai --</option>
+                            {personList
+                                .filter((p) => p.email && !invitees.includes(p.email))
+                                .map((p) => (
+                                    <option key={p.id} value={p.email}>
+                                        {p.name} &lt;{p.email}&gt; ({p.department?.code || 'BSP'})
                                     </option>
                                 ))}
                         </select>

@@ -38,6 +38,39 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'notifications' => function () use ($request) {
+                $user = $request->user();
+                if (! $user) {
+                    return ['count' => 0, 'items' => []];
+                }
+
+                \App\Services\NotificationService::syncActionableNotifications($user);
+
+                $allNotifications = $user->notifications()
+                    ->latest()
+                    ->take(20)
+                    ->get();
+
+                $unreadCount = $user->unreadNotifications()->count();
+
+                $items = $allNotifications->map(function ($n) {
+                    $data = $n->data ?? [];
+                    return [
+                        'id' => $n->id,
+                        'title' => $data['title'] ?? 'Notifikasi Sistem',
+                        'message' => $data['message'] ?? '',
+                        'url' => $data['url'] ?? '#',
+                        'type' => $data['type'] ?? 'general',
+                        'read' => ! is_null($n->read_at),
+                        'created_at' => $n->created_at ? $n->created_at->locale('id')->diffForHumans() : '',
+                    ];
+                })->values()->toArray();
+
+                return [
+                    'count' => $unreadCount,
+                    'items' => $items,
+                ];
+            },
         ];
     }
 }
