@@ -6,7 +6,7 @@ import Pagination from '@/Components/Pagination';
 import MeetingModal from '@/Components/Meetings/MeetingModal';
 import { Plus, Search, Calendar, MapPin, Video, Users, FileText, Download, Edit, Trash2 } from 'lucide-react';
 
-export default function Index({ meetings, allUsers, meetingTypes = [], meetingRooms = [], filters }) {
+export default function Index({ meetings, allUsers, meetingTypes = [], meetingRooms = [], meetingPlatforms = [], filters }) {
     const { user } = usePage().props.auth;
     const canManage = ['super_admin', 'manager_spi'].includes(user?.role);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -236,6 +236,7 @@ export default function Index({ meetings, allUsers, meetingTypes = [], meetingRo
                 allUsers={allUsers}
                 meetingTypes={meetingTypes}
                 meetingRooms={meetingRooms}
+                meetingPlatforms={meetingPlatforms}
             />
         </AuthenticatedLayout>
     );

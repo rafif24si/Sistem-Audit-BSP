@@ -74,6 +74,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('meeting-types', \App\Http\Controllers\MeetingTypeController::class)->except(['create', 'show', 'edit']);
         Route::resource('kpi-categories', \App\Http\Controllers\KpiCategoryController::class)->except(['create', 'show', 'edit']);
         Route::resource('meeting-rooms', \App\Http\Controllers\MeetingRoomController::class)->except(['create', 'show', 'edit']);
+        Route::resource('meeting-platforms', \App\Http\Controllers\MeetingPlatformController::class)->except(['create', 'show', 'edit']);
     });
 });
 

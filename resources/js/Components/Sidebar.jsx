@@ -11,6 +11,7 @@ import {
     Users,
     Building2,
     DoorClosed,
+    Video,
     Target,
     Settings,
     ChevronDown,
@@ -92,6 +93,12 @@ export default function Sidebar({ isOpen, onClose }) {
             href: route('meeting-rooms.index'),
             icon: DoorClosed,
             active: url.startsWith('/meeting-rooms'),
+        },
+        {
+            name: 'Data Master Platform Rapat',
+            href: route('meeting-platforms.index'),
+            icon: Video,
+            active: url.startsWith('/meeting-platforms'),
         },
         {
             name: 'Data Master Kategori KPI',
@@ -180,25 +187,16 @@ export default function Sidebar({ isOpen, onClose }) {
                             <button
                                 type="button"
                                 onClick={() => setIsAdminOpen(!isAdminOpen)}
-                                className={`w-full group flex items-center justify-between rounded-lg px-3.5 py-2.5 text-sm font-medium transition-all ${isAnyAdminActive
-                                        ? 'text-white bg-white/10 font-semibold'
-                                        : 'text-emerald-100/90 hover:bg-white/10 hover:text-white'
-                                    }`}
+                                className={`w-full group flex items-center justify-between rounded-lg px-3.5 py-2.5 text-sm font-medium transition-all ${isAnyAdminActive ? 'text-white bg-white/10 font-semibold' : 'text-emerald-100/90 hover:bg-white/10 hover:text-white'}`}
                             >
                                 <div className="flex items-center">
                                     <Settings className="me-3 h-5 w-5 flex-shrink-0 text-emerald-300" />
                                     <span>Pengaturan Sistem</span>
                                 </div>
-                                <ChevronDown
-                                    className={`h-4 w-4 text-emerald-300 transition-transform duration-300 ${isAdminOpen ? 'rotate-180' : ''
-                                        }`}
-                                />
+                                <ChevronDown className={`h-4 w-4 text-emerald-300 transition-transform duration-300 ${isAdminOpen ? 'rotate-180' : ''}`} />
                             </button>
 
-                            <div
-                                className={`overflow-hidden transition-all duration-300 ease-in-out ${isAdminOpen ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0'
-                                    }`}
-                            >
+                            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isAdminOpen ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0'}`}>
                                 <div className="space-y-1 pl-3 border-l-2 border-white/15 ml-4 my-1">
                                     {adminNavItems.map((adminItem) => {
                                         const AdminIcon = adminItem.icon;
@@ -206,17 +204,9 @@ export default function Sidebar({ isOpen, onClose }) {
                                             <Link
                                                 key={adminItem.name}
                                                 href={adminItem.href}
-                                                className={`group flex items-center rounded-lg px-3 py-2 text-xs font-medium transition-all ${adminItem.active
-                                                        ? 'bg-[#246b3c] text-white shadow-xs font-semibold'
-                                                        : 'text-emerald-100/80 hover:bg-white/10 hover:text-white'
-                                                    }`}
+                                                className={`group flex items-center rounded-lg px-3 py-2 text-xs font-medium transition-all ${adminItem.active ? 'bg-[#246b3c] text-white shadow-xs font-semibold' : 'text-emerald-100/80 hover:bg-white/10 hover:text-white'}`}
                                             >
-                                                <AdminIcon
-                                                    className={`me-2.5 h-4 w-4 flex-shrink-0 transition-colors ${adminItem.active
-                                                            ? 'text-emerald-300'
-                                                            : 'text-emerald-200/70 group-hover:text-emerald-200'
-                                                        }`}
-                                                />
+                                                <AdminIcon className={`me-2.5 h-4 w-4 flex-shrink-0 transition-colors ${adminItem.active ? 'text-emerald-300' : 'text-emerald-200/70 group-hover:text-emerald-200'}`} />
                                                 <span>{adminItem.name}</span>
                                             </Link>
                                         );

@@ -18,7 +18,7 @@ class MeetingRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'meeting_type' => ['required', 'string', 'max:255'],
             'meeting_mode' => ['required', Rule::in(['Offline', 'Online'])],
-            'platform' => ['nullable', Rule::in(['Tatap Muka', 'Zoom', 'Google Meet', 'Microsoft Teams', 'Webex'])],
+            'platform' => ['nullable', 'string', 'max:255'],
             'meeting_date_start' => ['required', 'date'],
             'meeting_date_end' => ['nullable', 'date', 'after_or_equal:meeting_date_start'],
             'start_time' => ['required'],

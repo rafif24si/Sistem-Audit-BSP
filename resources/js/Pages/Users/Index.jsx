@@ -3,15 +3,16 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 import Pagination from '@/Components/Pagination';
 import UserModal from '@/Components/Users/UserModal';
-import { Plus, Search, Edit, Trash2, Users, ShieldCheck, Briefcase } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Users as UsersIcon, ShieldCheck, Briefcase } from 'lucide-react';
 
-export default function Index({ users, departments, filters }) {
-    const currentUser = usePage().props.auth.user;
+export default function Index({ users = { data: [] }, departments = [], filters = {} }) {
+    const currentUser = usePage().props.auth?.user || {};
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [search, setSearch] = useState(filters.search || '');
-    const [roleFilter, setRoleFilter] = useState(filters.role || '');
-    const [deptFilter, setDeptFilter] = useState(filters.department_id || '');
+    const [search, setSearch] = useState(filters?.search || '');
+    const [roleFilter, setRoleFilter] = useState(filters?.role || '');
+    const [deptFilter, setDeptFilter] = useState(filters?.department_id || '');
+    const userList = users?.data || [];
 
     const handleFilterChange = (newFilters = {}) => {
         router.get(
@@ -126,15 +127,15 @@ export default function Index({ users, departments, filters }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 bg-white">
-                            {users.data.length === 0 ? (
+                            {userList.length === 0 ? (
                                 <tr>
                                     <td colSpan="5" className="py-12 text-center text-gray-400">
-                                        <Users className="mx-auto h-8 w-8 text-gray-300 mb-2" />
+                                        <UsersIcon className="mx-auto h-8 w-8 text-gray-300 mb-2" />
                                         Belum ada pengguna yang sesuai pencarian
                                     </td>
                                 </tr>
                             ) : (
-                                users.data.map((u) => (
+                                userList.map((u) => (
                                     <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                             <div className="inline-flex items-center space-x-2">
@@ -188,7 +189,7 @@ export default function Index({ users, departments, filters }) {
                         </tbody>
                     </table>
                 </div>
-                <Pagination links={users.links} />
+                <Pagination links={users?.links || []} />
             </div>
 
             <UserModal

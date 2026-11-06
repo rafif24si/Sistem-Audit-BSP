@@ -7,6 +7,7 @@ use App\Http\Requests\MeetingRequest;
 use App\Mail\MeetingInvitationMail;
 use App\Mail\MeetingUpdatedMail;
 use App\Models\Meeting;
+use App\Models\MeetingPlatform;
 use App\Models\MeetingRoom;
 use App\Models\MeetingType;
 use App\Models\User;
@@ -71,12 +72,14 @@ class MeetingController extends Controller
 
         $meetingTypes = MeetingType::orderBy('name')->get(['id', 'name']);
         $meetingRooms = MeetingRoom::orderBy('name')->get(['id', 'name', 'capacity']);
+        $meetingPlatforms = MeetingPlatform::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
         return Inertia::render('Meetings/Index', [
             'meetings' => $meetings,
             'allUsers' => $allUsers,
             'meetingTypes' => $meetingTypes,
             'meetingRooms' => $meetingRooms,
+            'meetingPlatforms' => $meetingPlatforms,
             'filters' => [
                 'search' => $search,
                 'status' => $status,

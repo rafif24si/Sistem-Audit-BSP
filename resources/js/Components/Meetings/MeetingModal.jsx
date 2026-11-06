@@ -8,8 +8,9 @@ import MeetingModeLocationSection from '@/Components/Meetings/MeetingModeLocatio
 import MeetingDateTimeSection from '@/Components/Meetings/MeetingDateTimeSection';
 import { X, Calendar } from 'lucide-react';
 
-export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers = [], meetingTypes = [], meetingRooms = [] }) {
+export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers = [], meetingTypes = [], meetingRooms = [], meetingPlatforms = [] }) {
     const isEdit = !!meeting;
+    const defaultPlatform = meetingPlatforms[0]?.name || 'Zoom Meeting';
 
     const { data, setData, post, processing, errors, reset } = useForm({
         _method: isEdit ? 'PUT' : 'POST',
@@ -36,7 +37,7 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
                 title: meeting.title || '',
                 meeting_type: meeting.meeting_type || 'Entry Meeting',
                 meeting_mode: meeting.meeting_mode || 'Offline',
-                platform: meeting.platform || (meeting.meeting_mode === 'Online' ? 'Zoom' : 'Tatap Muka'),
+                platform: meeting.platform || (meeting.meeting_mode === 'Online' ? defaultPlatform : 'Tatap Muka'),
                 meeting_date_start: meeting.meeting_date_start ? meeting.meeting_date_start.substring(0, 10) : '',
                 meeting_date_end: meeting.meeting_date_end ? meeting.meeting_date_end.substring(0, 10) : '',
                 start_time: meeting.start_time || '09:00',
@@ -85,7 +86,7 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
             setData((prev) => ({
                 ...prev,
                 meeting_mode: 'Online',
-                platform: prev.platform === 'Tatap Muka' ? 'Zoom' : prev.platform,
+                platform: prev.platform === 'Tatap Muka' ? defaultPlatform : prev.platform,
                 location: prev.location.startsWith('http') ? prev.location : '',
             }));
         }
@@ -171,6 +172,7 @@ export default function MeetingModal({ isOpen, onClose, meeting = null, allUsers
                         onPlatformChange={(val) => setData('platform', val)}
                         onLocationChange={(val) => setData('location', val)}
                         meetingRooms={meetingRooms}
+                        meetingPlatforms={meetingPlatforms}
                         errors={errors}
                     />
 

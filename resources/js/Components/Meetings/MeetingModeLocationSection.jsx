@@ -11,6 +11,7 @@ export default function MeetingModeLocationSection({
     onPlatformChange,
     onLocationChange,
     meetingRooms = [],
+    meetingPlatforms = [],
     errors = {},
 }) {
     return (
@@ -55,10 +56,20 @@ export default function MeetingModeLocationSection({
                             onChange={(e) => onPlatformChange(e.target.value)}
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring-blue-600 sm:text-sm"
                         >
-                            <option value="Zoom">Zoom Meeting</option>
-                            <option value="Google Meet">Google Meet</option>
-                            <option value="Microsoft Teams">Microsoft Teams</option>
-                            <option value="Webex">Cisco Webex</option>
+                            {meetingPlatforms && meetingPlatforms.length > 0 ? (
+                                meetingPlatforms.map((p) => (
+                                    <option key={p.id || p.name} value={p.name}>
+                                        {p.name}
+                                    </option>
+                                ))
+                            ) : (
+                                <>
+                                    <option value="Zoom Meeting">Zoom Meeting</option>
+                                    <option value="Google Meet">Google Meet</option>
+                                    <option value="Microsoft Teams">Microsoft Teams</option>
+                                    <option value="Webex">Cisco Webex</option>
+                                </>
+                            )}
                         </select>
                         <InputError message={errors.platform} className="mt-1" />
                     </div>

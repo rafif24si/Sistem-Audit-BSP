@@ -142,3 +142,12 @@
 - `pjs_role`: varchar(50), nullable (Contoh: 'manager_spi' jika sedang menjadi PJS)
 - `pjs_start_date`: date, nullable (Tanggal mulai tugas PJS)
 - `pjs_end_date`: date, nullable (Tanggal akhir tugas PJS. Melewati tanggal ini, hak PJS otomatis gugur)
+
+## 11. Tabel `meeting_platforms` (Data Master Platform Rapat Online)
+- `id`: bigint unsigned, PK
+- `name`: varchar(255), unique (Contoh: "Zoom Meeting", "Google Meet", "Microsoft Teams")
+- `is_active`: boolean, default: true (Untuk menonaktifkan platform yang sudah tidak dipakai perusahaan)
+- `timestamps` & `softDeletes`
+
+*(Revisi pada Tabel `meetings`)*: 
+- Ubah tipe kolom `platform` yang tadinya `enum` menjadi `varchar(255), nullable` (untuk menampung nama platform dari Data Master jika mode 'Online', atau bernilai 'Tatap Muka'/null jika 'Offline').
